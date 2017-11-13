@@ -21,9 +21,4 @@ function(include_externals)
 		set(gtest_force_shared_crt ON CACHE BOOL "" FORCE) # Prevent GoogleTest from overriding options when building with MSVC
 	endif(MSVC)
 	include_external(CMakeSupport/CMakeLists.GoogleTest.txt googletest)
-	
-	# Pulldown YamlCpp
-	option(YAML_CPP_BUILD_TOOLS "Enable testing and parse tools" OFF)
-	option(MSVC_SHARED_RT "MSVC: Build with shared runtime libs (/MD)" OFF)
-	include_external(CMakeSupport/CMakeLists.YamlCpp.txt yamlcpp)
 endfunction()	

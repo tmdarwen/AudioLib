@@ -13,11 +13,10 @@ if(DEBUG_TO_LOG_FILE)
 	add_definitions(-DDEBUG_TO_LOG_FILE)
 endif(DEBUG_TO_LOG_FILE)
 
-# "Externals" consists of GoogleTest and YamlCpp
+# "Externals" consists of GoogleTest
 include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeSupport/CMakeLists.Externals.txt)
 include_externals()
 
-add_subdirectory(Application)
 add_subdirectory(AudioData)
 add_subdirectory(Signal)
 add_subdirectory(ThreadSafeAudioFile)

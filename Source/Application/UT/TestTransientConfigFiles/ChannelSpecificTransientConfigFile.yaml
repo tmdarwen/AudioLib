@@ -1,3 +1,0 @@
-transients : [100, 200, 300, 400, 500]
-left_channel_transients : [275, 445, 550]
-right_channel_transients : [150, 340]
