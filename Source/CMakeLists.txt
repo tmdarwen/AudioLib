@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-project(PhaseVocoder)
+project(AudioLib)
 
 if(DEBUG_BUILD)
 	add_definitions(-DDEBUG_BUILD)
