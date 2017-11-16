@@ -13,9 +13,13 @@ if(DEBUG_TO_LOG_FILE)
 	add_definitions(-DDEBUG_TO_LOG_FILE)
 endif(DEBUG_TO_LOG_FILE)
 
+option(INCLUDE_GOOGLE_TEST "Pulldown GoogleTest and include it in the project" ON)
+
 # "Externals" consists of GoogleTest
-include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeSupport/CMakeLists.Externals.txt)
-include_externals()
+if(INCLUDE_GOOGLE_TEST)
+	include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeSupport/CMakeLists.Externals.txt)
+	include_externals()
+endif()
 
 add_subdirectory(AudioData)
 add_subdirectory(Signal)
