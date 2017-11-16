@@ -1,9 +1,16 @@
 # Specific compiler settings we want to set in various projects
 
+option(MSVCMT "Pulldown GoogleTest and include it in the project" ON)
+
 if(MSVC)
 	set(CMAKE_CXX_FLAGS "/Zi /EHsc")
-	set(CMAKE_CXX_FLAGS_DEBUG "/Od /MTd")  
-	set(CMAKE_CXX_FLAGS_RELEASE "/Ox /MT")  
+	if(MSVC_MULTI_THREADED_DLL_RUNTIME_LIB)
+		set(CMAKE_CXX_FLAGS_DEBUG "/Od /MDd")  
+		set(CMAKE_CXX_FLAGS_RELEASE "/Ox /MD")  
+	else()
+		set(CMAKE_CXX_FLAGS_DEBUG "/Od /MTd")  
+		set(CMAKE_CXX_FLAGS_RELEASE "/Ox /MT")  
+	endif(MSVC_MULTI_THREADED_DLL_RUNTIME_LIB)
 	set(CMAKE_EXE_LINKER_FLAGS_RELEASE "/DEBUG /INCREMENTAL:NO /OPT:REF /OPT:ICF") #Generate PDBs for release build
 elseif(APPLE)
 	add_definitions(-DTARGET_MAC)
