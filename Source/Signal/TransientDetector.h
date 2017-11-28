@@ -43,6 +43,7 @@ class TransientDetector
 
 		// This is the ratio of valley-to-peak required to be considered a peak.  The default is 1.5.
 		void SetValleyToPeakRatio(double ratio);
+		double GetValleyToPeakRatio();
 
 		// Clears internal data to prepare to perform transient detection on new audio
 		void Reset();

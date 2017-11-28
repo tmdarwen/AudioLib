@@ -45,6 +45,11 @@ Signal::TransientDetector::~TransientDetector()
 
 }
 
+double Signal::TransientDetector::GetValleyToPeakRatio()
+{
+	return minValleyToPeakGrowthRatio_;
+}
+
 void Signal::TransientDetector::SetValleyToPeakRatio(double ratio)
 {
 	minValleyToPeakGrowthRatio_ = ratio;

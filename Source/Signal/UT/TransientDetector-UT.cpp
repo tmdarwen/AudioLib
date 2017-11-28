@@ -48,6 +48,12 @@ std::vector<std::size_t> GetTransientPositions(const std::string& waveFilename, 
 	return transients;
 }
 
+TEST(TransientDetectorTests, TestGetSetValleyToPeakRatio)
+{
+	Signal::TransientDetector transientDetector(44100);
+	EXPECT_EQ(1.5, transientDetector.GetValleyToPeakRatio());
+}
+
 TEST(TransientDetectorTests, TestSilence)
 {
 	AudioData audioData;
