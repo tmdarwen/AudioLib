@@ -52,6 +52,8 @@ TEST(TransientDetectorTests, TestGetSetValleyToPeakRatio)
 {
 	Signal::TransientDetector transientDetector(44100);
 	EXPECT_EQ(1.5, transientDetector.GetValleyToPeakRatio());
+	transientDetector.SetValleyToPeakRatio(1.25);
+	EXPECT_EQ(1.25, transientDetector.GetValleyToPeakRatio());
 }
 
 TEST(TransientDetectorTests, TestSilence)
