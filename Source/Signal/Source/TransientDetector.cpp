@@ -55,6 +55,38 @@ void Signal::TransientDetector::SetValleyToPeakRatio(double ratio)
 	minValleyToPeakGrowthRatio_ = ratio;
 }
 
+void Signal::TransientDetector::SetFirstLevelStep(double firstLevelStepMilliseconds)
+{
+	firstLevelStepMilliseconds_ = firstLevelStepMilliseconds;
+
+}
+
+void Signal::TransientDetector::SetSecondLevelStep(double secondLevelStepMilliseconds)
+{
+	secondLevelStepMilliseconds_ = secondLevelStepMilliseconds;
+
+}
+
+void Signal::TransientDetector::SetThirdLevelStep(double thirdLevelStepMilliseconds)
+{
+	thirdLevelStepMilliseconds_ = thirdLevelStepMilliseconds;
+}
+
+double Signal::TransientDetector::GetFirstLevelStep()
+{
+	return firstLevelStepMilliseconds_;
+}
+
+double Signal::TransientDetector::GetSecondLevelStep()
+{
+	return secondLevelStepMilliseconds_;
+}
+
+double Signal::TransientDetector::GetThirdLevelStep()
+{
+	return thirdLevelStepMilliseconds_;
+}
+
 void Signal::TransientDetector::Reset()
 {
 	audioDataInput_.Clear();

@@ -45,6 +45,16 @@ class TransientDetector
 		void SetValleyToPeakRatio(double ratio);
 		double GetValleyToPeakRatio();
 
+		// Setters for the level step settings
+		void SetFirstLevelStep(double firstLevelStepMilliseconds);
+		void SetSecondLevelStep(double secondLevelStepMilliseconds);
+		void SetThirdLevelStep(double thirdLevelStepMilliseconds);
+
+		// Getters for the level step settings
+		double GetFirstLevelStep();
+		double GetSecondLevelStep();
+		double GetThirdLevelStep();
+
 		// Clears internal data to prepare to perform transient detection on new audio
 		void Reset();
 

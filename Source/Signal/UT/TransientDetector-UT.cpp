@@ -56,6 +56,25 @@ TEST(TransientDetectorTests, TestGetSetValleyToPeakRatio)
 	EXPECT_EQ(1.25, transientDetector.GetValleyToPeakRatio());
 }
 
+TEST(TransientDetectorTests, TestGetSetLevelStepValues)
+{
+	Signal::TransientDetector transientDetector(44100);
+
+	// First check the default settings
+	EXPECT_EQ(11.60998, transientDetector.GetFirstLevelStep());
+	EXPECT_EQ(5.80499, transientDetector.GetSecondLevelStep());
+	EXPECT_EQ(0.725623, transientDetector.GetThirdLevelStep());
+
+	// Then check setting your own
+	transientDetector.SetFirstLevelStep(5.6);
+	transientDetector.SetSecondLevelStep(3.4);
+	transientDetector.SetThirdLevelStep(1.2);
+
+	EXPECT_EQ(5.6, transientDetector.GetFirstLevelStep());
+	EXPECT_EQ(3.4, transientDetector.GetSecondLevelStep());
+	EXPECT_EQ(1.2, transientDetector.GetThirdLevelStep());
+}
+
 TEST(TransientDetectorTests, TestSilence)
 {
 	AudioData audioData;
