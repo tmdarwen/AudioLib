@@ -210,3 +210,48 @@ TEST(TransientDetectorTests, SweetEmotionSpecificRatio)
 		EXPECT_EQ(153408, transientPositions[16]);
 	}
 }
+
+TEST(TransientDetectorTests, TestNonExistantPeakValleyInfo)
+{
+	Signal::TransientDetector transientDetector(44100);
+	try
+	{
+		transientDetector.GetPeakAndValleyInfo(0, Signal::TransientDetector::Step::FIRST);
+	}
+	catch(std::exception& theException)
+	{
+		EXPECT_STREQ("Peak and valley info doesn't exist for transient|0", theException.what());
+	}
+}
+
+TEST(TransientDetectorTests, TestGettingPeakAndValleyInfoAcousticGuitarDualStringPluck)
+{
+	WaveFile::WaveFileReader inputWaveFile{"AcousticGuitarDualStringPluck.wav"};
+	Signal::TransientDetector transientDetector(inputWaveFile.GetSampleRate());
+
+	std::vector<std::size_t> transients;
+	transientDetector.FindTransients(inputWaveFile.GetAudioData()[WaveFile::MONO_CHANNEL], transients);
+
+	EXPECT_EQ(2, transients.size());
+
+	{
+		auto peakAndValleyInfo{transientDetector.GetPeakAndValleyInfo(1, Signal::TransientDetector::Step::FIRST)};
+		EXPECT_EQ(85, peakAndValleyInfo.GetValleyPoint());
+		EXPECT_EQ(86, peakAndValleyInfo.GetPeakPoint());
+		EXPECT_EQ(88, peakAndValleyInfo.plottedPoints_.size());
+	}
+
+	{
+		auto peakAndValleyInfo{transientDetector.GetPeakAndValleyInfo(1, Signal::TransientDetector::Step::SECOND)};
+		EXPECT_EQ(1, peakAndValleyInfo.GetValleyPoint());
+		EXPECT_EQ(3, peakAndValleyInfo.GetPeakPoint());
+		EXPECT_EQ(5, peakAndValleyInfo.plottedPoints_.size());
+	}
+
+	{
+		auto peakAndValleyInfo{transientDetector.GetPeakAndValleyInfo(1, Signal::TransientDetector::Step::THIRD)};
+		EXPECT_EQ(0, peakAndValleyInfo.GetValleyPoint());
+		EXPECT_EQ(0, peakAndValleyInfo.GetPeakPoint());
+		EXPECT_EQ(0, peakAndValleyInfo.plottedPoints_.size());
+	}
+}

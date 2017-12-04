@@ -30,6 +30,9 @@
 
 namespace Signal {
 
+// See https://github.com/tmdarwen/PhaseVocoder/blob/master/Documentation/TransientDetection.md
+// for detailed information on how transient detection works. 
+
 class TransientDetector
 {
 	public:
@@ -62,14 +65,40 @@ class TransientDetector
 		// near the end of the given audio.  This returns to the user this "look ahead" amount.
 		std::size_t GetLookAheadSampleCount();	
 
-	private:
 		struct PeakAndValley
 		{
-			PeakAndValley() : peak_{0}, valley_{0} { }
-			PeakAndValley(std::size_t peak, std::size_t valley) : peak_{peak}, valley_{valley} { }
+			PeakAndValley(std::size_t startSamplePosition, std::size_t stepSize) : startSamplePoisiton_{startSamplePosition}, stepSize_{stepSize}, peak_ { 0 }, valley_{0} { }
+
+			std::size_t GetPeakPoint()
+			{
+				return (peak_ - startSamplePoisiton_) / stepSize_;
+			}
+
+			std::size_t GetValleyPoint()
+			{
+				return (valley_ - startSamplePoisiton_) / stepSize_;
+			}
+
 			std::size_t peak_;
 			std::size_t valley_;
+			std::size_t startSamplePoisiton_;
+			std::size_t stepSize_;
+			std::vector<double> plottedPoints_;
 		};
+
+		enum Step
+		{
+			FIRST,
+			SECOND,
+			THIRD
+		};
+
+		const PeakAndValley& GetPeakAndValleyInfo(std::size_t transient, Step step);
+
+	private:
+		std::vector<PeakAndValley> firstLevel_;
+		std::vector<PeakAndValley> secondLevel_;
+		std::vector<PeakAndValley> thirdLevel_;
 
 		double firstLevelStepMilliseconds_{11.60998};  // 512 samples for 44.1KHz sample rate
 		double secondLevelStepMilliseconds_{5.80499};  // 256 samples for 44.1KHz sample rate

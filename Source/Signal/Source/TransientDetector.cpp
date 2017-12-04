@@ -31,7 +31,7 @@
 #include <Utilities/Exception.h>
 #include <Utilities/Stringify.h>
 
-Signal::TransientDetector::TransientDetector(std::size_t sampleRate) : 
+Signal::TransientDetector::TransientDetector(std::size_t sampleRate) :
 	firstLevelStepSize_{static_cast<std::size_t>(static_cast<double>(sampleRate) * (firstLevelStepMilliseconds_ / 1000.0) + 0.5)},
 	secondLevelStepSize_{static_cast<std::size_t>(static_cast<double>(sampleRate) * (secondLevelStepMilliseconds_ / 1000.0) + 0.5)},
 	thirdLevelStepSize_{static_cast<std::size_t>(static_cast<double>(sampleRate) * (thirdLevelStepMilliseconds_ / 1000.0) + 0.5)},
@@ -180,12 +180,13 @@ bool Signal::TransientDetector::FindTransients(std::vector<std::size_t>& transie
 	}
 
 	// Try and find peaks in the audio we have
-	Signal::TransientDetector::PeakAndValley firstLevelPeakAndValley;
+	Signal::TransientDetector::PeakAndValley firstLevelPeakAndValley(inputSamplesProcessed_, firstLevelStepSize_);
 	while(GetPeakAndValley(audioDataInput_, firstLevelStepSize_, firstLevelPeakAndValley))
 	{
 		auto transientSamplePosition{inputSamplesProcessed_ + FindTransientSamplePosition(firstLevelPeakAndValley)};
 		if(transientsFound_ == false || (3 * firstLevelStepSize_ + lastTransientValue_) <= transientSamplePosition)
 		{
+			firstLevel_.push_back(firstLevelPeakAndValley);
 			transients.push_back(transientSamplePosition);
 			lastTransientValue_ = transientSamplePosition;
 			transientsFound_ = true;
@@ -222,16 +223,18 @@ std::size_t Signal::TransientDetector::FindFirstTransient()
 
 std::size_t Signal::TransientDetector::FindTransientSamplePosition(const Signal::TransientDetector::PeakAndValley& firstLevelPeakAndValley)
 {
-	Signal::TransientDetector::PeakAndValley secondLevelPeakAndValley;
 	std::size_t secondLevelStartPosition{firstLevelPeakAndValley.valley_};
+	Signal::TransientDetector::PeakAndValley secondLevelPeakAndValley(0, secondLevelStepSize_);
 	std::size_t secondLevelLength{(firstLevelPeakAndValley.peak_ - firstLevelPeakAndValley.valley_) + (2 * firstLevelStepSize_)};
 
 	AudioData secondLevelAudioData{audioDataInput_.Retrieve(secondLevelStartPosition, secondLevelLength)};
 	GetPeakAndValley(secondLevelAudioData, secondLevelStepSize_, secondLevelPeakAndValley);
+	secondLevel_.push_back(secondLevelPeakAndValley);
 
-	Signal::TransientDetector::PeakAndValley thirdLevelPeakAndValley;
 	std::size_t thirdLevelStartPosition{firstLevelPeakAndValley.valley_ + secondLevelPeakAndValley.valley_};
+	Signal::TransientDetector::PeakAndValley thirdLevelPeakAndValley(0, thirdLevelStepSize_);
 	std::size_t thirdLevelLength{(secondLevelPeakAndValley.peak_ - secondLevelPeakAndValley.valley_) + firstLevelStepSize_};
+	thirdLevel_.push_back(thirdLevelPeakAndValley);
 
 	AudioData thirdLevelAudioData{audioDataInput_.Retrieve(thirdLevelStartPosition, thirdLevelLength)};
 	GetPeakAndValley(thirdLevelAudioData, thirdLevelStepSize_, thirdLevelPeakAndValley);
@@ -263,6 +266,27 @@ bool Signal::TransientDetector::SampleMeetsPeekRequirements(double peakSampleVal
 std::size_t Signal::TransientDetector::GetLookAheadSampleCount()
 {
 	return 3 * firstLevelStepSize_;
+}
+
+const Signal::TransientDetector::PeakAndValley& Signal::TransientDetector::GetPeakAndValleyInfo(std::size_t transient, Step step)
+{
+	if(transient == 0 || transient > firstLevel_.size())
+	{
+		Utilities::ThrowException("Peak and valley info doesn't exist for transient", transient);
+	}
+
+	if(step == Signal::TransientDetector::Step::FIRST)
+	{
+		return firstLevel_[transient - 1];
+	}
+	else if(step == Signal::TransientDetector::Step::SECOND)
+	{
+		return secondLevel_[transient - 1];
+	}
+	else
+	{
+		return thirdLevel_[transient - 1];
+	}
 }
 
 double Signal::TransientDetector::GetMaxSample(const AudioData& audioData, std::size_t sampleCount)
@@ -300,10 +324,12 @@ bool Signal::TransientDetector::GetPeakAndValley(const AudioData& audioData, std
 	std::size_t sampleCounter{0};
 
 	double leftSample{GetMaxSample(tempBuffer, stepSize)};
+	peakAndValley.plottedPoints_.push_back(leftSample);
 	tempBuffer.RemoveFrontSamples(stepSize);
 	sampleCounter += stepSize;
 
 	double centerSample{GetMaxSample(tempBuffer, stepSize)};
+	peakAndValley.plottedPoints_.push_back(centerSample);
 	tempBuffer.RemoveFrontSamples(stepSize);
 	sampleCounter += stepSize;
 
@@ -313,6 +339,7 @@ bool Signal::TransientDetector::GetPeakAndValley(const AudioData& audioData, std
 	while(tempBuffer.GetSize() >= stepSize)
 	{
 		auto rightSample{GetMaxSample(tempBuffer, stepSize)};
+		peakAndValley.plottedPoints_.push_back(rightSample);
 		if(SampleIsPeak(centerSample, leftSample, rightSample))
 		{
 			if(SampleMeetsPeekRequirements(centerSample, valleyValue))
