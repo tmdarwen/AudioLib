@@ -180,7 +180,7 @@ bool Signal::TransientDetector::FindTransients(std::vector<std::size_t>& transie
 	}
 
 	// Try and find peaks in the audio we have
-	Signal::TransientDetector::PeakAndValley firstLevelPeakAndValley(inputSamplesProcessed_, firstLevelStepSize_);
+	Signal::TransientPeakAndValley firstLevelPeakAndValley(0, firstLevelStepSize_);
 	while(GetPeakAndValley(audioDataInput_, firstLevelStepSize_, firstLevelPeakAndValley))
 	{
 		auto transientSamplePosition{inputSamplesProcessed_ + FindTransientSamplePosition(firstLevelPeakAndValley)};
@@ -193,8 +193,9 @@ bool Signal::TransientDetector::FindTransients(std::vector<std::size_t>& transie
 		}
 
 		// Remove all audio from the beginning of audioDataInput_ thru the peakIndex samples
-		audioDataInput_.RemoveFrontSamples(firstLevelPeakAndValley.peak_ + firstLevelStepSize_);
-		inputSamplesProcessed_ += firstLevelPeakAndValley.peak_ + firstLevelStepSize_;
+		audioDataInput_.RemoveFrontSamples(firstLevelPeakAndValley.GetPeakSamplePosition() + firstLevelStepSize_);
+		inputSamplesProcessed_ += firstLevelPeakAndValley.GetPeakSamplePosition() + firstLevelStepSize_;
+		firstLevelPeakAndValley.Reset(0, firstLevelStepSize_);
 	}
 
 	if(transients.size())
@@ -221,25 +222,25 @@ std::size_t Signal::TransientDetector::FindFirstTransient()
 	return 0;
 }
 
-std::size_t Signal::TransientDetector::FindTransientSamplePosition(const Signal::TransientDetector::PeakAndValley& firstLevelPeakAndValley)
+std::size_t Signal::TransientDetector::FindTransientSamplePosition(const Signal::TransientPeakAndValley& firstLevelPeakAndValley)
 {
-	std::size_t secondLevelStartPosition{firstLevelPeakAndValley.valley_};
-	Signal::TransientDetector::PeakAndValley secondLevelPeakAndValley(0, secondLevelStepSize_);
-	std::size_t secondLevelLength{(firstLevelPeakAndValley.peak_ - firstLevelPeakAndValley.valley_) + (2 * firstLevelStepSize_)};
+	std::size_t secondLevelStartPosition{firstLevelPeakAndValley.GetValleySamplePosition()};
+	Signal::TransientPeakAndValley secondLevelPeakAndValley(0, secondLevelStepSize_);
+	std::size_t secondLevelLength{(firstLevelPeakAndValley.GetPeakSamplePosition() - firstLevelPeakAndValley.GetValleySamplePosition()) + (2 * firstLevelStepSize_)};
 
 	AudioData secondLevelAudioData{audioDataInput_.Retrieve(secondLevelStartPosition, secondLevelLength)};
 	GetPeakAndValley(secondLevelAudioData, secondLevelStepSize_, secondLevelPeakAndValley);
 	secondLevel_.push_back(secondLevelPeakAndValley);
 
-	std::size_t thirdLevelStartPosition{firstLevelPeakAndValley.valley_ + secondLevelPeakAndValley.valley_};
-	Signal::TransientDetector::PeakAndValley thirdLevelPeakAndValley(0, thirdLevelStepSize_);
-	std::size_t thirdLevelLength{(secondLevelPeakAndValley.peak_ - secondLevelPeakAndValley.valley_) + firstLevelStepSize_};
+	std::size_t thirdLevelStartPosition{firstLevelPeakAndValley.GetValleySamplePosition() + secondLevelPeakAndValley.GetValleySamplePosition()};
+	Signal::TransientPeakAndValley thirdLevelPeakAndValley(0, thirdLevelStepSize_);
+	std::size_t thirdLevelLength{(secondLevelPeakAndValley.GetPeakSamplePosition() - secondLevelPeakAndValley.GetValleySamplePosition()) + firstLevelStepSize_};
 	thirdLevel_.push_back(thirdLevelPeakAndValley);
 
 	AudioData thirdLevelAudioData{audioDataInput_.Retrieve(thirdLevelStartPosition, thirdLevelLength)};
 	GetPeakAndValley(thirdLevelAudioData, thirdLevelStepSize_, thirdLevelPeakAndValley);
 
-	return (thirdLevelStartPosition + thirdLevelPeakAndValley.valley_);
+	return (thirdLevelStartPosition + thirdLevelPeakAndValley.GetValleySamplePosition());
 }
 
 bool Signal::TransientDetector::SampleIsPeak(double centerSample, double leftSample, double rightSample)
@@ -268,7 +269,7 @@ std::size_t Signal::TransientDetector::GetLookAheadSampleCount()
 	return 3 * firstLevelStepSize_;
 }
 
-const Signal::TransientDetector::PeakAndValley& Signal::TransientDetector::GetPeakAndValleyInfo(std::size_t transient, Step step)
+const Signal::TransientPeakAndValley& Signal::TransientDetector::GetPeakAndValleyInfo(std::size_t transient, Step step)
 {
 	if(transient == 0 || transient > firstLevel_.size())
 	{
@@ -312,7 +313,7 @@ double Signal::TransientDetector::GetMaxSample(const AudioData& audioData, std::
 	return maxSample;
 }
 
-bool Signal::TransientDetector::GetPeakAndValley(const AudioData& audioData, std::size_t stepSize, PeakAndValley& peakAndValley)
+bool Signal::TransientDetector::GetPeakAndValley(const AudioData& audioData, std::size_t stepSize, TransientPeakAndValley& peakAndValley)
 {
 	// To find a peak, we need to analyze at least 3 data points
 	if(audioData.GetSize() < (3 * stepSize))
@@ -324,12 +325,12 @@ bool Signal::TransientDetector::GetPeakAndValley(const AudioData& audioData, std
 	std::size_t sampleCounter{0};
 
 	double leftSample{GetMaxSample(tempBuffer, stepSize)};
-	peakAndValley.plottedPoints_.push_back(leftSample);
+	peakAndValley.PushPlottedPoint(leftSample);
 	tempBuffer.RemoveFrontSamples(stepSize);
 	sampleCounter += stepSize;
 
 	double centerSample{GetMaxSample(tempBuffer, stepSize)};
-	peakAndValley.plottedPoints_.push_back(centerSample);
+	peakAndValley.PushPlottedPoint(centerSample);
 	tempBuffer.RemoveFrontSamples(stepSize);
 	sampleCounter += stepSize;
 
@@ -339,21 +340,21 @@ bool Signal::TransientDetector::GetPeakAndValley(const AudioData& audioData, std
 	while(tempBuffer.GetSize() >= stepSize)
 	{
 		auto rightSample{GetMaxSample(tempBuffer, stepSize)};
-		peakAndValley.plottedPoints_.push_back(rightSample);
+		peakAndValley.PushPlottedPoint(rightSample);
 		if(SampleIsPeak(centerSample, leftSample, rightSample))
 		{
 			if(SampleMeetsPeekRequirements(centerSample, valleyValue))
 			{
 				// We subtract stepSize here since we're technically on the "right sample" i.e. one step past the center (peak) sample
-				peakAndValley.peak_ = sampleCounter - stepSize;
+				peakAndValley.SetPeakSamplePosition(sampleCounter - stepSize);
 
 				if(valleySamplePosition > stepSize)
 				{
-					peakAndValley.valley_ = valleySamplePosition - stepSize;
+					peakAndValley.SetValleySamplePosition(valleySamplePosition - stepSize);
 				}
 				else
 				{
-					peakAndValley.valley_ = 0;
+					peakAndValley.SetValleySamplePosition(0);
 				}
 
 				return true;

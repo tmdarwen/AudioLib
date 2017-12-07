@@ -27,6 +27,7 @@
 #pragma once
 
 #include <AudioData/AudioData.h>
+#include <Signal/TransientPeakAndValley.h>
 
 namespace Signal {
 
@@ -65,27 +66,6 @@ class TransientDetector
 		// near the end of the given audio.  This returns to the user this "look ahead" amount.
 		std::size_t GetLookAheadSampleCount();	
 
-		struct PeakAndValley
-		{
-			PeakAndValley(std::size_t startSamplePosition, std::size_t stepSize) : startSamplePoisiton_{startSamplePosition}, stepSize_{stepSize}, peak_ { 0 }, valley_{0} { }
-
-			std::size_t GetPeakPoint()
-			{
-				return (peak_ - startSamplePoisiton_) / stepSize_;
-			}
-
-			std::size_t GetValleyPoint()
-			{
-				return (valley_ - startSamplePoisiton_) / stepSize_;
-			}
-
-			std::size_t peak_;
-			std::size_t valley_;
-			std::size_t startSamplePoisiton_;
-			std::size_t stepSize_;
-			std::vector<double> plottedPoints_;
-		};
-
 		enum Step
 		{
 			FIRST,
@@ -93,12 +73,12 @@ class TransientDetector
 			THIRD
 		};
 
-		const PeakAndValley& GetPeakAndValleyInfo(std::size_t transient, Step step);
+		const TransientPeakAndValley& GetPeakAndValleyInfo(std::size_t transient, Step step);
 
 	private:
-		std::vector<PeakAndValley> firstLevel_;
-		std::vector<PeakAndValley> secondLevel_;
-		std::vector<PeakAndValley> thirdLevel_;
+		std::vector<TransientPeakAndValley> firstLevel_;
+		std::vector<TransientPeakAndValley> secondLevel_;
+		std::vector<TransientPeakAndValley> thirdLevel_;
 
 		double firstLevelStepMilliseconds_{11.60998};  // 512 samples for 44.1KHz sample rate
 		double secondLevelStepMilliseconds_{5.80499};  // 256 samples for 44.1KHz sample rate
@@ -134,9 +114,9 @@ class TransientDetector
 
 		std::size_t FindFirstTransient();
 
-		bool GetPeakAndValley(const AudioData& audioData, std::size_t stepSize, PeakAndValley& peakAndValley);
+		bool GetPeakAndValley(const AudioData& audioData, std::size_t stepSize, TransientPeakAndValley& peakAndValley);
 
-		std::size_t FindTransientSamplePosition(const PeakAndValley& firstLevelPeakAndValley);
+		std::size_t FindTransientSamplePosition(const TransientPeakAndValley& firstLevelPeakAndValley);
 	
 		double GetMaxSample(const AudioData& audioData, std::size_t sampleCount);
 

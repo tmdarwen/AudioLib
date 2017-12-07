@@ -238,20 +238,20 @@ TEST(TransientDetectorTests, TestGettingPeakAndValleyInfoAcousticGuitarDualStrin
 		auto peakAndValleyInfo{transientDetector.GetPeakAndValleyInfo(1, Signal::TransientDetector::Step::FIRST)};
 		EXPECT_EQ(85, peakAndValleyInfo.GetValleyPoint());
 		EXPECT_EQ(86, peakAndValleyInfo.GetPeakPoint());
-		EXPECT_EQ(88, peakAndValleyInfo.plottedPoints_.size());
+		EXPECT_EQ(88, peakAndValleyInfo.GetPlottedPoints().size());
 	}
 
 	{
 		auto peakAndValleyInfo{transientDetector.GetPeakAndValleyInfo(1, Signal::TransientDetector::Step::SECOND)};
 		EXPECT_EQ(1, peakAndValleyInfo.GetValleyPoint());
 		EXPECT_EQ(3, peakAndValleyInfo.GetPeakPoint());
-		EXPECT_EQ(5, peakAndValleyInfo.plottedPoints_.size());
+		EXPECT_EQ(5, peakAndValleyInfo.GetPlottedPoints().size());
 	}
 
 	{
 		auto peakAndValleyInfo{transientDetector.GetPeakAndValleyInfo(1, Signal::TransientDetector::Step::THIRD)};
 		EXPECT_EQ(0, peakAndValleyInfo.GetValleyPoint());
 		EXPECT_EQ(0, peakAndValleyInfo.GetPeakPoint());
-		EXPECT_EQ(0, peakAndValleyInfo.plottedPoints_.size());
+		EXPECT_EQ(0, peakAndValleyInfo.GetPlottedPoints().size());
 	}
 }

@@ -10,6 +10,8 @@ endfunction()
 function(include_externals)
 	# Pulldown GoogleTest
 	if(MSVC)
+		# The following is needed for compiling with MSVC C++ compiler v15.5 b/c of deprecation of std::tr1 namespace
+		add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
 		if(MSVC_MULTI_THREADED_DLL_RUNTIME_LIB)
 			set(CMAKE_CXX_FLAGS_RELEASE "/MD")
 			set(CMAKE_CXX_FLAGS_DEBUG "/MDd")
