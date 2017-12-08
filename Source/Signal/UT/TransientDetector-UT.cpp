@@ -56,6 +56,14 @@ TEST(TransientDetectorTests, TestGetSetValleyToPeakRatio)
 	EXPECT_EQ(1.25, transientDetector.GetValleyToPeakRatio());
 }
 
+TEST(TransientDetectorTests, TestGetSetMinimumPeakLevel)
+{
+	Signal::TransientDetector transientDetector(44100);
+	EXPECT_EQ(0.1, transientDetector.GetMinimumPeakLevel());
+	transientDetector.SetMinimumPeakLevel(0.25);
+	EXPECT_EQ(0.25, transientDetector.GetMinimumPeakLevel());
+}
+
 TEST(TransientDetectorTests, TestGetSetLevelStepValues)
 {
 	Signal::TransientDetector transientDetector(44100);

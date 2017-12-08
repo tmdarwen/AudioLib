@@ -55,6 +55,16 @@ void Signal::TransientDetector::SetValleyToPeakRatio(double ratio)
 	minValleyToPeakGrowthRatio_ = ratio;
 }
 
+double Signal::TransientDetector::GetMinimumPeakLevel()
+{
+	return minPeakLevel_;
+}
+
+void Signal::TransientDetector::SetMinimumPeakLevel(double minPeakLevel)
+{
+	minPeakLevel_ = minPeakLevel;
+}
+
 void Signal::TransientDetector::SetFirstLevelStep(double firstLevelStepMilliseconds)
 {
 	firstLevelStepMilliseconds_ = firstLevelStepMilliseconds;

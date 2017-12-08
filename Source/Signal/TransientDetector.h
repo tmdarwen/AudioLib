@@ -49,6 +49,10 @@ class TransientDetector
 		void SetValleyToPeakRatio(double ratio);
 		double GetValleyToPeakRatio();
 
+		// This is the minimum audio level of a peak sample to actually qualify as a peak. The default is 0.1.
+		void SetMinimumPeakLevel(double minPeakLevel);
+		double GetMinimumPeakLevel();
+
 		// Setters for the level step settings
 		void SetFirstLevelStep(double firstLevelStepMilliseconds);
 		void SetSecondLevelStep(double secondLevelStepMilliseconds);
