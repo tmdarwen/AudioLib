@@ -40,7 +40,6 @@ TEST(TransientPeakAndValley, InstantiateTest)
 	EXPECT_EQ(0, transientPeakAndValley.GetPlottedPoints().size());
 }
 
-/*
 TEST(TransientPeakAndValley, TestBasicValues)
 {
 	Signal::TransientPeakAndValley transientPeakAndValley(100, 256);
@@ -48,15 +47,15 @@ TEST(TransientPeakAndValley, TestBasicValues)
 	std::vector<double> hypotheticalPoints{0.1, 0.5, 0.2, 0.3, 0.7, 0.4, 0.6, 0.8, 0.7};
 	std::for_each(hypotheticalPoints.begin(), hypotheticalPoints.end(), [&](double point) { transientPeakAndValley.PushPlottedPoint(point);  });
 
-	transientPeakAndValley.SetPeakSamplePosition(768);
-	transientPeakAndValley.SetValleySamplePosition(512);
+	transientPeakAndValley.SetPeakSamplePosition(1124);
+	transientPeakAndValley.SetValleySamplePosition(612);
 
 	auto plottedPoints{transientPeakAndValley.GetPlottedPoints()};
 
 	EXPECT_EQ(100, transientPeakAndValley.GetStartSamplePosition());
 	EXPECT_EQ(256, transientPeakAndValley.GetStepSize());
-	EXPECT_EQ(7, transientPeakAndValley.GetPeakPoint());
-	EXPECT_EQ(5, transientPeakAndValley.GetValleyPoint());
+	EXPECT_EQ(4, transientPeakAndValley.GetPeakPoint());
+	EXPECT_EQ(2, transientPeakAndValley.GetValleyPoint());
 	EXPECT_EQ(hypotheticalPoints.size(), plottedPoints.size());
 	EXPECT_TRUE(std::equal(hypotheticalPoints.begin(), hypotheticalPoints.end(), plottedPoints.begin(), plottedPoints.end()));
 }
@@ -68,8 +67,8 @@ TEST(TransientPeakAndValley, TestReset)
 	std::vector<double> hypotheticalPoints{0.1, 0.5, 0.2, 0.3, 0.7, 0.4, 0.6, 0.8, 0.7};
 	std::for_each(hypotheticalPoints.begin(), hypotheticalPoints.end(), [&](double point) { transientPeakAndValley.PushPlottedPoint(point);  });
 
-	transientPeakAndValley.SetPeakSamplePosition(7);
-	transientPeakAndValley.SetValleySamplePosition(5);
+	transientPeakAndValley.SetPeakSamplePosition(1124);
+	transientPeakAndValley.SetValleySamplePosition(612);
 
 	transientPeakAndValley.Reset(200, 400);
 
@@ -79,4 +78,3 @@ TEST(TransientPeakAndValley, TestReset)
 	EXPECT_EQ(0, transientPeakAndValley.GetValleyPoint());
 	EXPECT_EQ(0, transientPeakAndValley.GetPlottedPoints().size());
 }
-*/
