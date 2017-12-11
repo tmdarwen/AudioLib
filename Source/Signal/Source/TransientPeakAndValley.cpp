@@ -24,9 +24,8 @@
 * THE SOFTWARE.
 */
 
-#pragma once
-
 #include <Signal/TransientPeakAndValley.h>
+#include <cstdint>
 
 Signal::TransientPeakAndValley::TransientPeakAndValley(std::size_t startSamplePosition, std::size_t stepSize) :
 	startSamplePoisiton_{startSamplePosition},
