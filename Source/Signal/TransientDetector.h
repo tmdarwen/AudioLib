@@ -27,8 +27,12 @@
 #pragma once
 
 #include <AudioData/AudioData.h>
+#include <Signal/TransientPeakAndValley.h>
 
 namespace Signal {
+
+// See https://github.com/tmdarwen/PhaseVocoder/blob/master/Documentation/TransientDetection.md
+// for detailed information on how transient detection works. 
 
 class TransientDetector
 {
@@ -43,6 +47,21 @@ class TransientDetector
 
 		// This is the ratio of valley-to-peak required to be considered a peak.  The default is 1.5.
 		void SetValleyToPeakRatio(double ratio);
+		double GetValleyToPeakRatio();
+
+		// This is the minimum audio level of a peak sample to actually qualify as a peak. The default is 0.1.
+		void SetMinimumPeakLevel(double minPeakLevel);
+		double GetMinimumPeakLevel();
+
+		// Setters for the level step settings
+		void SetFirstLevelStep(double firstLevelStepMilliseconds);
+		void SetSecondLevelStep(double secondLevelStepMilliseconds);
+		void SetThirdLevelStep(double thirdLevelStepMilliseconds);
+
+		// Getters for the level step settings
+		double GetFirstLevelStep();
+		double GetSecondLevelStep();
+		double GetThirdLevelStep();
 
 		// Clears internal data to prepare to perform transient detection on new audio
 		void Reset();
@@ -51,14 +70,19 @@ class TransientDetector
 		// near the end of the given audio.  This returns to the user this "look ahead" amount.
 		std::size_t GetLookAheadSampleCount();	
 
-	private:
-		struct PeakAndValley
+		enum Step
 		{
-			PeakAndValley() : peak_{0}, valley_{0} { }
-			PeakAndValley(std::size_t peak, std::size_t valley) : peak_{peak}, valley_{valley} { }
-			std::size_t peak_;
-			std::size_t valley_;
+			FIRST,
+			SECOND,
+			THIRD
 		};
+
+		const TransientPeakAndValley& GetPeakAndValleyInfo(std::size_t transient, Step step);
+
+	private:
+		std::vector<TransientPeakAndValley> firstLevel_;
+		std::vector<TransientPeakAndValley> secondLevel_;
+		std::vector<TransientPeakAndValley> thirdLevel_;
 
 		double firstLevelStepMilliseconds_{11.60998};  // 512 samples for 44.1KHz sample rate
 		double secondLevelStepMilliseconds_{5.80499};  // 256 samples for 44.1KHz sample rate
@@ -94,9 +118,9 @@ class TransientDetector
 
 		std::size_t FindFirstTransient();
 
-		bool GetPeakAndValley(const AudioData& audioData, std::size_t stepSize, PeakAndValley& peakAndValley);
+		bool GetPeakAndValley(const AudioData& audioData, std::size_t stepSize, TransientPeakAndValley& peakAndValley);
 
-		std::size_t FindTransientSamplePosition(const PeakAndValley& firstLevelPeakAndValley);
+		std::size_t FindTransientSamplePosition(const TransientPeakAndValley& firstLevelPeakAndValley);
 	
 		double GetMaxSample(const AudioData& audioData, std::size_t sampleCount);
 
