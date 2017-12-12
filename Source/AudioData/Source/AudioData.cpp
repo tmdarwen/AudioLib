@@ -49,14 +49,10 @@ AudioData::AudioData(AudioData&& audioData) : data_(std::move(audioData.data_)) 
 
 AudioData::~AudioData() { }
 
-void AudioData::operator=(AudioData& audioData)
+// Uses the copy-and-swap idiom
+AudioData& AudioData::operator=(AudioData audioData)
 {
-	data_ = audioData.data_;
-}
-
-AudioData& AudioData::operator=(AudioData&& audioData)
-{
-	data_ = audioData.data_;
+	std::swap(data_, audioData.data_);
 	return *this;
 }
 

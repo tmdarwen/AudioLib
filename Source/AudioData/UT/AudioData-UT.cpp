@@ -43,6 +43,72 @@ class AudioDataTest : public testing::Test
 		}
 };
 
+TEST_F(AudioDataTest, TestCopyConstruction)
+{
+	AudioData copy{audioData};
+
+	{
+		auto data = audioData.GetData();
+		EXPECT_EQ(4, data.size());
+		EXPECT_EQ(0.5, data[0]);
+		EXPECT_EQ(0.6, data[1]);
+		EXPECT_EQ(0.7, data[2]);
+		EXPECT_EQ(0.8, data[3]);
+	}
+
+	{
+		auto data = copy.GetData();
+		EXPECT_EQ(4, data.size());
+		EXPECT_EQ(0.5, data[0]);
+		EXPECT_EQ(0.6, data[1]);
+		EXPECT_EQ(0.7, data[2]);
+		EXPECT_EQ(0.8, data[3]);
+	}
+}
+
+TEST_F(AudioDataTest, TestMoveConstruction)
+{
+	AudioData moved{std::move(audioData)};
+
+	{
+		auto data = audioData.GetData();
+		EXPECT_EQ(0, data.size());
+	}
+
+	{
+		auto data = moved.GetData();
+		EXPECT_EQ(4, data.size());
+		EXPECT_EQ(0.5, data[0]);
+		EXPECT_EQ(0.6, data[1]);
+		EXPECT_EQ(0.7, data[2]);
+		EXPECT_EQ(0.8, data[3]);
+	}
+}
+
+TEST_F(AudioDataTest, TestAssignment)
+{
+	AudioData assigned;
+	assigned = audioData;
+
+	{
+		auto data = audioData.GetData();
+		EXPECT_EQ(4, data.size());
+		EXPECT_EQ(0.5, data[0]);
+		EXPECT_EQ(0.6, data[1]);
+		EXPECT_EQ(0.7, data[2]);
+		EXPECT_EQ(0.8, data[3]);
+	}
+
+	{
+		auto data = assigned.GetData();
+		EXPECT_EQ(4, data.size());
+		EXPECT_EQ(0.5, data[0]);
+		EXPECT_EQ(0.6, data[1]);
+		EXPECT_EQ(0.7, data[2]);
+		EXPECT_EQ(0.8, data[3]);
+	}
+}
+
 TEST_F(AudioDataTest, TestEmptyBuffer)
 {
 	AudioData emptyAudioData;

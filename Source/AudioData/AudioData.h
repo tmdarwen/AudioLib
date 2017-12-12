@@ -40,8 +40,8 @@ class AudioData
 		AudioData(AudioData&&);
 		virtual ~AudioData();
 
-		void operator=(AudioData&);
-		AudioData& operator=(AudioData&&);
+		// Copy-and-swap idiom
+		AudioData& operator=(AudioData);
 
 		void AddSilence(uint64_t sampleCount);
 
@@ -89,8 +89,6 @@ class AudioData
 
 		void Amplify(double ratio);
 		void Amplify(double beginRatio, double endRatio);
-
-		//void LinearAmplify(double startRatio, double endRatio);
 
 	private:
 		std::vector<double> data_;
