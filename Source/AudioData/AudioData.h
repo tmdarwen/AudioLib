@@ -24,6 +24,9 @@
  * THE SOFTWARE.
  */
 
+//! @file AudioData.h
+//! @brief A class allowing for easy transportation and access of digital audio data. 
+
 #pragma once
 
 #include <vector>
