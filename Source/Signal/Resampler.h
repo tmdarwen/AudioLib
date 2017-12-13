@@ -24,6 +24,9 @@
  * THE SOFTWARE.
  */
 
+//! @file Resampler.h
+//! @brief Implementation of an audio resampler.
+
 #pragma once
 
 #include <AudioData/AudioData.h>
@@ -34,29 +37,35 @@ namespace Signal {
 
 class LowPassFilter;
 
-// See the document ResamplingUsingWindowedSincFilter.odg in SabbaticalNotes for how resampling works.
+//! Implementation of a digital audio resampler using a windowed sinc filter.
+
+//! A resampler allows for adjusting the sample rate of digital audio without unreasonably 
+//! degrading the audio quality.
 
 class Resampler
 {
 	public:
-		// Example: Input sample rate of 44100Hz and a resample ratio of 0.5
-		// will result in an output sample rate of 22050Hz.
+		//! Instatiate the resampler.
+		//
+		//! Example: An input sample rate of 44100Hz and a resample ratio of 0.5
+		//! will result in an output sample rate of 22050Hz.
 		Resampler(std::size_t inputSampleRate, double resampleRatio);
+
 		virtual ~Resampler();
 
-		// Clears internal buffers and counters to restart processing fresh
+		//! Clears internal buffers and etc to allow for restarting processing fresh.
 		void Reset();
 
-		// Method to give the Phase Vocoder input audio for it to process
+		//! Submit audio data to be processed by the resampler.
 		void SubmitAudioData(const AudioData& audioData);
 
-		// Method to retrieve output audio the Phase Vocoder has processed
+		//! Retrieve output audio the resampler has processed, requesting a certain number of samples.
 		AudioData GetAudioData(uint64_t samples);
 
-		// Method to check how many output samples are currently available
+		//! Returns the number of output samples currently available.
 		std::size_t OutputSamplesAvailable();
 
-		// Call this at the end of processing to get any and all samples remaining in the system
+		//! At the end of processing, this can be called to get any and all remaining output samples.
 		AudioData FlushAudioData();
 
 	private:			

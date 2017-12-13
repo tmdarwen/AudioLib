@@ -24,6 +24,9 @@
  * THE SOFTWARE.
  */
 
+//! @file Fourier.h
+//! @brief Functions allowing for Fourier transformations.
+
 #pragma once
 
 #include <AudioData/AudioData.h>
@@ -32,14 +35,26 @@
 
 namespace Signal  {
 
+
 namespace Fourier
 {
+	//! Returns true if the given number is a power of two; false otherwise.
 	bool IsPowerOfTwo(std::size_t number);
 
+	//! Applies the Discrete Fourier Transform to the given audio data.
 	Signal::FrequencyDomain ApplyDFT(const AudioData& timeDomainSignal);
+
+	//! Applies the Inverse Discrete Fourier Transform to the given frequency data.
 	AudioData ApplyInverseDFT(const Signal::FrequencyDomain& frequencyDomainData);
 
+	//! Applies the Fast Fourier Transform to the given audio data.
+	//
+	//! Note that the length of the given audio must be a power of two.
 	Signal::FrequencyDomain ApplyFFT(const AudioData& timeDomainSignal);
+
+	//! Applies the Inverse Fast Fourier Transform to the given audio data.
+	//
+	//! Note that the length of the given frequency domain data must be a power of two.
 	AudioData ApplyInverseFFT(const Signal::FrequencyDomain& frequencyDomainData);
 }
 

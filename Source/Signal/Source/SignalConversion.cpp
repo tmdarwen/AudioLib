@@ -175,14 +175,14 @@ std::vector<int16_t> Signal::ConvertAudioDataToInterleavedSigned16(const AudioDa
 	return returnSignal;
 }
 
-AudioData Signal::ConvertSigned16ToAudioData(const std::vector<int16_t>& interleavedSigned16)
+AudioData Signal::ConvertSigned16ToAudioData(const std::vector<int16_t>& signal)
 {
 	AudioData audioData;
 
 	std::vector<int16_t> returnSignal;
-	for(std::size_t i{0}; i < interleavedSigned16.size(); ++i)
+	for(std::size_t i{0}; i < signal.size(); ++i)
 	{
-		audioData.PushSample(Signal::SignalConversion::ConvertSigned16SampleToFloat64(interleavedSigned16[i]));
+		audioData.PushSample(Signal::SignalConversion::ConvertSigned16SampleToFloat64(signal[i]));
 	}
 
 	return audioData;

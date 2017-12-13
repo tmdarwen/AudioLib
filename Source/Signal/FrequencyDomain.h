@@ -24,6 +24,9 @@
  * THE SOFTWARE.
  */
 
+//! @file FrequencyDomain.h
+//! @brief Class to hold frequency domain information for a signal.
+
 #pragma once
 
 #include <AudioData/AudioData.h>
@@ -31,30 +34,58 @@
 
 namespace Signal  {
 
+//! Simple structure to hold a single frequency bin's frequency domain data.
+
 struct FrequencyBin
 {
+	//! Instantiates frequency bin data with zeroes for real and imaginary values.
 	FrequencyBin() : reX_(0.0), imX_(0.0) { }
+
+	//! Instantiates frequency bin data with the given values.
 	FrequencyBin(double reX, double imX) : reX_(reX), imX_(imX) { }
+
+	//! The real component of the frequency.
 	double reX_;
+
+	//! The imaginary component of the frequency.
 	double imX_;
 };
+
+
+//! Class to hold frequency domain information for a signal.
 
 class FrequencyDomain
 {
 	public:
+
+		//! Constructs object with no frequency data.
 		FrequencyDomain();
+
+		//! Constructs object with the given frequency domain data.
 		FrequencyDomain(std::vector<Signal::FrequencyBin> FrequencyBin);
 
+		//! Add the given frequency bin data.
 		void PushFrequencyBin(Signal::FrequencyBin FrequencyBin);
 
+		//! Get the number of frequency bins in this frequency domain data.
 		std::size_t GetSize() const;
 
+		//! Get frequency bin data for the given frequency bin.
 		const FrequencyBin& GetBin(std::size_t binNumber) const;
 
+		//! Get the magnitudes for all frequency bins.
 		const std::vector<double>& GetMagnitudes();
+
+		//! Get the wrapped phase values for all frequency bins.
 		const std::vector<double>& GetWrappedPhases();
+
+		//! Get the real components of all frequency bins.
 		const std::vector<double>& GetRealComponent();
+
+		//! Get the imaginary components of all frequency bins.
 		const std::vector<double>& GetImaginaryComponent();
+
+		//! Get the data for all frequency bins.
 		std::vector<Signal::FrequencyBin> GetRectangularFrequencyData() const;
 
 	private:

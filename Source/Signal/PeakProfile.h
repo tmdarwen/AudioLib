@@ -24,6 +24,9 @@
  * THE SOFTWARE.
  */
 
+//! @file PeakProfile.h
+//! @brief Identifies peak frequency bins in an audio signal.
+
 #pragma once
 
 #include <AudioData/AudioData.h>
@@ -32,17 +35,21 @@
 
 namespace Signal  {
 
-// Given a frequency domain signal, this will find all the "peak" bins
+//! Given a frequency domain signal, this will find all the "peak" bins.
+
 class PeakProfile
 {
 	public:
+		//! Instantiate the object with frequency domain information.
 		PeakProfile(const FrequencyDomain& frequencyDomain);
 
-		// This will return the closest peak for the given frequency bin
+		//! This will return the closest peak for the given frequency bin.
 		std::size_t GetLocalPeakForBin(std::size_t bin);
 
+		//! Returns a list of all peak bins.
 		const std::vector<std::size_t>& GetAllPeakBins();
 
+		//! Returns a list of all valley bins.
 		std::pair<std::size_t, std::size_t> GetValleyBins(std::size_t peakBin);
 
 	private:
