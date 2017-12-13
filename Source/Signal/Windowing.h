@@ -28,7 +28,7 @@
 
 #include <vector>
 
-//! @file windowing.h
+//! @file Windowing.h
 //! @brief Functions for applying various windowing to audio signals.
 
 namespace Signal {
