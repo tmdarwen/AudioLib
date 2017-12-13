@@ -30,19 +30,35 @@
 #include <mutex>
 #include <WaveFile/WaveFileWriter.h>
 
+//! @file Writer.h
+//! @brief A threadsafe audio file writer.
+
 class AudioData;
 
 namespace ThreadSafeAudioFile {
 
+//! A class allowing for writing data to an audio file in a threadsafe manner.
+
+//! Good for writing multiple channel audio file data in a multithreaded manner.
+
 class Writer
 {
 	public:
+		//! @brief Construct the AudioFile Writer.
+		//! @param filename The name of the audio filename to create.
+		//! @param channels The number of channels in the audio file.
+		//! @param sampleRate The sample rate of the audio file.
+		//! @param bitsPerSample The bit resolution of the audio file.
 		Writer(const std::string& filename, std::size_t channels, std::size_t sampleRate, std::size_t bitsPerSample);
 		virtual ~Writer();
 
+		//! Allows for writing audio data to the audio file.
+		//! @param streamID Identifies the channel to write audio data to.
+		//! @param audioData The audio data to write.
 		void WriteAudioStream(std::size_t streamID, const AudioData& audioData);
 
-		std::size_t GetMaxBufferedSamples();  // High water mark for stereo data buffered
+		//! Get the max number of buffered samples occurring while writing the audio file.
+		std::size_t GetMaxBufferedSamples();
 
 	private:
 		WaveFile::WaveFileWriter waveFileWriter_;
