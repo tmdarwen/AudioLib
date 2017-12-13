@@ -9,7 +9,7 @@ This is a library I've made to support some of my audio related projects.  It's 
 
 -   AudioData - A class allowing for easy transportation and access of digital audio data. 
 
--   Signal - Various classes implementing digital signal processing techniques.
+-   Signal - Various digital signal processing utilities, such as the [PhaseVocder](Documentation/HowThePhaseVocoderWorks.md) and [TransientDetector](Documentation/TransientDetection.md).
 
 -   ThreadSafeAudioFile - Provides threadsafe reading and writing of wave audio files.
 
