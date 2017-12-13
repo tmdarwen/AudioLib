@@ -37,7 +37,7 @@ Unit test coverage is extensive.  You'll notice every component within the sourc
 
 -   Building this project requires a C++14 compliant compiler.  This project is routinely built in my continous integration system which uses MS Visual Studio 2017, GCC 5.3.1 and Apple LLVM version 7.3.0 (clang 703.0.31).
 
--   External dependencies are [GoogleTest](https://github.com/google/googletest).  You do *not* need to clone or install these dependencies manually. The GitHub repos will be cloned automatically when CMake runs.
+-   External dependencies are [GoogleTest](https://github.com/google/googletest).  You do *not* need to clone or install these dependencies manually. The GitHub repo will be cloned automatically when CMake runs.
 
  
 
