@@ -24,6 +24,9 @@
  * THE SOFTWARE.
  */
 
+//! @file TransientDetector.h
+//! @brief Implementation of a transient detector.
+
 #pragma once
 
 #include <AudioData/AudioData.h>
@@ -31,45 +34,64 @@
 
 namespace Signal {
 
-// See https://github.com/tmdarwen/PhaseVocoder/blob/master/Documentation/TransientDetection.md
-// for detailed information on how transient detection works. 
+//! Implementation of a transient detector.
+
+//! The transient detector, detects transients in audio.  An audio transient is usually a high amplitude, 
+//! short-duration sound at the beginning of a waveform.
 
 class TransientDetector
 {
 	public:
-		// CTOR takes the sample rate of the audio it will process (e.g. 44100)
+		//! Instantiates the transient detector taking the sample rate of the audio it will process (e.g. 44100).
 		TransientDetector(std::size_t sampleRate);
 		virtual ~TransientDetector();
 
-		// Return true if transients are found, false otherwise.
-		// If transients are found, they will be in the transients variable
+		//! Finds the sample positions of transients in the given audio.
+		//
+		//! Return true if transients are found, false otherwise.
+		//! If transients are found, they will be in the transients variable
 		bool FindTransients(const AudioData& audioInput, std::vector<std::size_t>& transients);
 
-		// This is the ratio of valley-to-peak required to be considered a peak.  The default is 1.5.
+		//! The ratio of valley-to-peak growth for audio to be considered a peak.  The default is 1.5.
 		void SetValleyToPeakRatio(double ratio);
+
+		//! Returns the current valley-to-peak ratio.
 		double GetValleyToPeakRatio();
 
-		// This is the minimum audio level of a peak sample to actually qualify as a peak. The default is 0.1.
+		//! Set the minimum audio level of a peak sample to actually qualify as a peak. The default is 0.1.
 		void SetMinimumPeakLevel(double minPeakLevel);
+
+		//! Get the minimum audio level of a peak sample to actually qualify as a peak.
 		double GetMinimumPeakLevel();
 
-		// Setters for the level step settings
+		//! Set first level step setting.  Default is 11.6 milliseconds.
 		void SetFirstLevelStep(double firstLevelStepMilliseconds);
+
+		//! Set second level step setting.  Default is 5.8 milliseconds.
 		void SetSecondLevelStep(double secondLevelStepMilliseconds);
+
+		//! Set third level step setting.  Default is 0.73 milliseconds.
 		void SetThirdLevelStep(double thirdLevelStepMilliseconds);
 
-		// Getters for the level step settings
+		//! Get the current first level step setting.
 		double GetFirstLevelStep();
+
+		//! Get the current second level step setting.
 		double GetSecondLevelStep();
+
+		//! Get the current third level step setting.
 		double GetThirdLevelStep();
 
-		// Clears internal data to prepare to perform transient detection on new audio
+		//! Clears internal data to prepare to perform transient detection on new audio.
 		void Reset();
 
-		// The Transient Detector needs to "look ahead" just beyond the given amount of data in order to get a transient 
-		// near the end of the given audio.  This returns to the user this "look ahead" amount.
+		//! Get the number of "look ahead" samples required.
+		//
+		//! The Transient Detector needs to "look ahead" just beyond the given amount of data in order to get a transient 
+		//! near the end of the given audio.  This returns to the user this "look ahead" amount.
 		std::size_t GetLookAheadSampleCount();	
 
+		//! The three separate steps when analyzing audio for transients.
 		enum Step
 		{
 			FIRST,
@@ -77,6 +99,7 @@ class TransientDetector
 			THIRD
 		};
 
+		//! Get detailed data on a specific transient.
 		const TransientPeakAndValley& GetPeakAndValleyInfo(std::size_t transient, Step step);
 
 	private:

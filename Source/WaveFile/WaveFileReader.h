@@ -33,31 +33,65 @@
 #include <WaveFile/WaveFileHeader.h>
 #include <AudioData/AudioData.h>
 
+//! @file WaveFileReader.h
+//! @brief Class facilitating reading a typical wave file.
+
 namespace WaveFile {
+
+//! Class facilitating reading a typical wave file.
+
+//! See http://soundfile.sapp.org/doc/WaveFormat/ for details.
 
 class WaveFileReader
 {
 	public:
+		//! Instantiate the object with the given wave filename.
   		WaveFileReader(const std::string& filename);
 		~WaveFileReader();
 
+		//! Gets the wave file header.
 		const WaveFile::WaveFileHeader& GetHeader();
 
+		//! Get the size of the wave file in bytes.
 		std::size_t GetFileSize();
+
+		//! Get the chunk size defined in the header.
 		std::size_t GetChunkSize();
+
+		//! Get the byte rate defined in the header.
 		std::size_t GetByteRate();
+
+		//! Get the channels contained in the wave file.
 		std::size_t GetChannels();
+
+		//! Get the sample rate of the audio file.
 		std::size_t GetSampleRate();
+
+		//! Get the bit resolution for a sample.
 		std::size_t GetBitsPerSample();
+
+		//! Get the block alignment as defined in the header.
 		std::size_t GetBlockAlign();
+
+		//! Get the sub chunk 1 size as defined in the header.
 		std::size_t GetSubChunk1Size();
+
+		//! Get the sub chunk 2 size as defined in the header.
 		std::size_t GetSubChunk2Size() const;
+
+		//! Get the wave file's header size.
 		std::size_t GetWaveHeaderSize();
 
+		//! Get the number of samples in the wave file.
 		std::size_t GetSampleCount() const;
 
+		//! Get the entire audio data content of the wave file.
 		std::vector<AudioData> GetAudioData();
+
+		//! Read the next "samplesToRead" in the wave file.
 		std::vector<AudioData> GetAudioData(std::size_t samplesToRead);
+
+		//! Read the "samplesToRead" in the wave file for a specific position.
 		std::vector<AudioData> GetAudioData(std::size_t samplesStartPosition, std::size_t samplesToRead);
 
 	private:

@@ -30,13 +30,27 @@
 #include <string>
 #include <Utilities/Stringify.h>
 
+//! @file Exception.h
+//! @brief Simple wrapper for std::exception.
+
 namespace Utilities {
+
+//! Simple wrapper class around std::exception.
 
 class Exception : public std::exception
 {
 	public:
+
+		//! Instantiate an exception without any information.
 		Exception();
+
+		//! @brief Instantiate an exception with specific information.
+		//! @param what String information concerning this exception.
+		//! @param file The source code file the exception originated in.
+		//! @param lineNumber The line in the source code file the exception originated in.
 		Exception(const std::string& what, const std::string& file="", std::size_t lineNumber=0);
+
+		//! Get any string information describing this exception.
 		const char* what() const noexcept override;
 	
 	private:
@@ -46,6 +60,8 @@ class Exception : public std::exception
 		mutable std::string extendedWhat_;
 };
 
+//! @brief Throw an exception without having to construct the exception object yourself.
+//! @param params A variable list of string information to describe the exception.
 template<typename... Params>
 void ThrowException(Params... params)
 {

@@ -24,6 +24,9 @@
  * THE SOFTWARE.
  */
 
+//! @file TransientPeakAndValley.h
+//! @brief Stores details on transient information.
+
 #pragma once
 
 #include <cstddef>
@@ -31,26 +34,45 @@
 
 namespace Signal {
 
+//! Stores details on transient information.
+
 class TransientPeakAndValley
 {
 	public:
+		//! Sample position of where analysis started and the first level step size used.
 		TransientPeakAndValley(std::size_t startSamplePosition, std::size_t stepSize);
 
+		//! Clears the stored data in this structure.
 		void Reset(std::size_t startSamplePosition, std::size_t stepSize);
 
+		//! Retrieve the starting position of the transient.
 		std::size_t GetStartSamplePosition() const;
+
+		//! Retrieve the step size used to find the transient.
 		std::size_t GetStepSize() const;
 
+		//! Retrieve the sample position of the peak obtained during analysis.
 		std::size_t GetPeakSamplePosition() const;
+
+		//! Set the sample position of the peak.
 		void SetPeakSamplePosition(std::size_t peakPoint);
 
+		//! Retrieve the sample position of the valley obtained during analysis.
 		std::size_t GetValleySamplePosition() const;
+
+		//! Set the valley sample position.
 		void SetValleySamplePosition(std::size_t valleyPoint);
 
+		//! Get the x-axis point of where the valley is plotted.
 		std::size_t GetValleyPoint() const;
+
+		//! Get the x-axis point of where the peak is plotted.
 		std::size_t GetPeakPoint() const;
 
+		//! Add plotted point from the analysis graph.
 		void PushPlottedPoint(double point);
+
+		//! Get all plotted points used in the analysis graph.
 		const std::vector<double>& GetPlottedPoints() const;
 
 	private:

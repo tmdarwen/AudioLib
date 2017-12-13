@@ -28,18 +28,29 @@
 #include <ctime>
 #include <atomic>
 
+//! @file Timer.h
+//! @brief Class to allow for doing timing between lines of code.
+
 namespace Utilities {
 
+//! Class to allow for doing timing between lines of code.
 
 class Timer {
 
 	public:
+		//! Action to pass to the consutrctor to start timing now immediately.
 		enum class Action { START_NOW };
 
+		//! Instantiate the Timer.
 		Timer();
+
+		//! Instantiate the Timer, starting the timer running at the time of instantiation.
 		Timer(Action);
 
+		//! Start the timer.
 	    void Start();
+
+		//! Stop the timer, returning the number of seconds accumulated.
 	    double Stop();
 	
 	private:

@@ -31,19 +31,36 @@
 #include <WaveFile/WaveFileReader.h>
 #include <AudioData/AudioData.h>
 
+//! @file Reader.h
+//! @brief A threadsafe audio file reader.
+
 namespace ThreadSafeAudioFile {
+
+//! A class allowing for reading data from an audio file in a threadsafe manner.
 
 class Reader
 {
 	public:
+		//! Construct the threadsafe audio file reader, taking the audio file name to read.
 		Reader(const std::string& filename);
 		virtual ~Reader();
 
+		//! Get the number of channels the audio file contains.
 		std::size_t GetChannels();
+
+		//! Get the sample rate of the audio file.
 		std::size_t GetSampleRate();
+
+		//! Get the bit resolution of the audio file.
 		std::size_t GetBitsPerSample();
+
+		//! Get the number of sample in the audio file.
 		std::size_t GetSampleCount();
 
+		//! @brief Get the number of sample in the audio file.
+		//! @param streamID Identifies the channel.
+		//! @param sampleStartPosition The sample number of where the read should start.
+		//! @param samplesToRead The number of samples to read.
 		AudioData ReadAudioStream(std::size_t streamID, std::size_t sampleStartPosition, std::size_t samplesToRead);
 
 	private:

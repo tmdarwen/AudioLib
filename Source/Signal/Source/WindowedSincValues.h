@@ -24,11 +24,12 @@
  * THE SOFTWARE.
  */
 
+//! @file WindowedSincValues.h
+//! @brief Lookup table for windowed sinc values.
+
 #pragma once
 
 #include <cstddef>
-
-// See chapter 16 of "The Scientists' and Engineers Guide to DSP" for more on the "Windowed-Sinc Filters"
 
 namespace Signal {
 
@@ -38,6 +39,9 @@ namespace Signal {
 	const double MAX_X_POSITION_POSITIVE{4928.0};
 	const double MIN_X_POSITION_POSITIVE{-4928.0};
 
+	//! Get the sinc value for the given x-axis position.
+	//
+	//! See chapter 16 of "The Scientists' and Engineers Guide to DSP" for more on the "Windowed-Sinc Filters"
 	double GetSincValue(double xPosition);
 
 }

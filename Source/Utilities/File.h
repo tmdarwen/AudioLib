@@ -28,26 +28,35 @@
 #include <vector>
 #include <fstream>
 
+//! @file File.h
+//! @brief Class and functions for allowing easy file reading access.
+
 namespace Utilities { namespace File {
 
-// Returns the dirname of the given path and filename
+//! Returns the dirname of the given path and filename
 std::string GetDirname(const std::string& filenameWithPath);
 
-// Returns the basename of the given path and filename
+//! Returns the basename of the given path and filename
 std::string GetBasename(const std::string& filenameWithPath);
 
-// Removed the extension from the given filename
+//! Removes the extension from the given filename
 void RemoveExtension(std::string& filename);
 
-// A fairly simple class to read data from a file
+//! A fairly simple class to read data from a file.
+
 class FileReader
 {
 	public:
+		//! Construct the FileReader.
 		FileReader(const std::string filename);
 		virtual ~FileReader();
 
+		//! Get the number of bytes contained in the file.
 		std::size_t GetFileSize();
 
+		//! @brief Read data from the file.
+		//! @param position Byte position in the file to start the read.
+		//! @param bytes Number of bytes to read.
 		std::vector<char> ReadData(std::size_t position, std::size_t bytes);
 
 	private:
@@ -58,9 +67,10 @@ class FileReader
 		void InitializeFileReading();
 };
 
-// Diffs two files returning true if they match and false otherwise.
+//! Diffs two files returning true if they match and false otherwise.
 bool CheckIfFilesMatch(const std::string& filenameA, const std::string& filenameB);
-// The diffInfo string contains information about the differences if they files do not match.
+
+//! Diffs two files.  The diffInfo will contain information about the differences if the files do not match.
 bool CheckIfFilesMatch(const std::string& filenameA, const std::string& filenameB, std::string& diffInfo);
 
 }} // End of namespace

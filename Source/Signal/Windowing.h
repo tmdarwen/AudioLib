@@ -28,12 +28,21 @@
 
 #include <vector>
 
+//! @file Windowing.h
+//! @brief Functions for applying various windowing to audio signals.
+
 namespace Signal {
 
+//! Apply a Blackman window.
 void BlackmanWindow(std::vector<double>& inputSignal, double startPercent=0.0, double endPercent=100.0);
+
+//! Apply an inverse Blackman window.
 void InverseBlackmanWindow(std::vector<double>& inputSignal, double startPercent=0.0, double endPercent=100.0);
+
+//! Apply an reverse Blackman window.
 void ReverseBlackmanWindow(std::vector<double>& inputSignal, double startPercent=0.0, double endPercent=100.0);
 
+//! Apply linear window.
 void LinearFadeInOut(std::vector<double>& inputSignal);
 
 }

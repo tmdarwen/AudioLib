@@ -24,44 +24,51 @@
  * THE SOFTWARE.
  */
 
+//! @file LowPassFilter.h
+//! @brief Implementation of a low pass filter.
+
 #pragma once
 
 #include <AudioData/AudioData.h>
 #include <mutex>
 
-// This is an implementation of equation 16-4 (Windowed Sinc Filter) from the 
-// book "The Scientist and Engineer's Guide to Digital Signal Processing" 2nd 
-// edition by Steven W. Smith.
-// 
-// The cutoffRatio should be calculated as follows:
-// cutoffRatio = OutputSampleRate/InputSampleRate * 0.5
-// signal sample rate.  For example, if you're input is a 44100Hz signal and 
-// you want to filter out everything above 32000Hz you would use a ratio of 
-// 0.3628.
-
 namespace Signal {
+
+//! An implementation of a low pass filter.
+// 
+//! This is an implementation of equation 16-4 (Windowed Sinc Filter) from the 
+//! book "The Scientist and Engineer's Guide to Digital Signal Processing" 2nd 
+//! edition by Steven W. Smith.
 
 class LowPassFilter
 {
 	public:
+
+		//! Instatiate the LowPassFilter.
+		//
+		//! The cutoffRatio should be calculated as follows:
+		//! cutoffRatio = OutputSampleRate/InputSampleRate * 0.5
+		//! signal sample rate.  For example, if you're input is a 44100Hz signal and 
+		//! you want to filter out everything above 32000Hz you would use a ratio of 
+		//! 0.3628.
 		LowPassFilter(double cutoffRatio, std::size_t filterLength=100);
 
-		// Clears internal buffers and counters to restart processing fresh
+		//! Clears internal buffers and counters to restart processing fresh.
 		void Reset();
 
-		// Method to give the Phase Vocoder input audio for it to process
+		//! Submit audio data for the filter to process.
 		void SubmitAudioData(const AudioData& audioData);
 
-		// Method to retrieve output audio the Phase Vocoder has processed
+		//! Method to retrieve output after processed by the low pass filter.
 		AudioData GetAudioData(uint64_t samples);
 
-		// Method to check how many output samples are currently available
+		//! Returns the number of output samples currently available.
 		std::size_t OutputSamplesAvailable();
 
-		// Call this at the end of processing to get any and all samples remaining in the system
+		//! At the end of processing, this can be called to get any and all remaining output samples.
 		AudioData FlushAudioData();
 
-		// Returns the MinimumSamplesNeededForProcessing. This is the same as filterLength_.
+		//! Returns the minimum input samples needed for processing. This is the same as the filter length.
 		std::size_t MinimumSamplesNeededForProcessing();
 
 

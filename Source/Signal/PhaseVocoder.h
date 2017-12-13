@@ -24,6 +24,9 @@
  * THE SOFTWARE.
  */
 
+//! @file PhaseVocoder.h
+//! @brief Implementation of a phase vocoder.
+
 #pragma once
 
 #include <list>
@@ -38,32 +41,39 @@ namespace Signal {
 class FrequencyDomain;
 class PeakProfile;
 
+//! Implementation of a phase vocoder.
+
+//! A phase vocoder allows for stretching/compressing audio with respect to time.  Wikipedia has a pretty good explanation 
+//! of how a phase vocoder works.
+
 class PhaseVocoder
 {
 	public:
-		// Params:
-		// 1) The sample rate of the audio it will process (e.g. 44100) 
-		// 2) The total length in samples of the input we'll be stretching
-		// 3) The stretch factor which is a ratio of the input (e.g. 1.0 = no change, 0.8 = 20% speedup, 1.2 = 20% slowdown)
+		//! Instatiate the phase vocoder.
+		// 
+		//! Params:
+		//! 1) The sample rate of the audio it will process (e.g. 44100) 
+		//! 2) The total length in samples of the input we'll be stretching
+		//! 3) The stretch factor which is a ratio of the input (e.g. 1.0 = no change, 0.8 = 20% speedup, 1.2 = 20% slowdown)
 		PhaseVocoder(std::size_t sampleRate, std::size_t inputLength, double stretchFactor);
 		virtual ~PhaseVocoder();
 
-		// Clears internal buffers and counter to restart processing fresh
+		//! Clears internal buffers and etc to allow for restarting processing fresh.
 		void Reset();
 
-		// Method to give the Phase Vocoder input audio for it to process
+		//! Submit audio data to be processed by the phase vocoder.
 		void SubmitAudioData(const AudioData& audioData);
 
-		// Method to retrieve output audio the Phase Vocoder has processed
+		//! Retrieve output audio the Phase Vocoder has processed, requesting a certain number of samples.
 		AudioData GetAudioData(uint64_t samples);
 
-		// Method to check how many output samples are currently available
+		//! Returns the number of output samples currently available.
 		std::size_t OutputSamplesAvailable();
 
-		// Call this at the end of processing to get any and all samples remaining in the system
+		//! At the end of processing, this can be called to get any and all remaining output samples.
 		AudioData FlushAudioData();
 
-		// Returns the stretch factor given at construction
+		//! Returns the stretch factor given at construction.
 		double GetStretchFactor();
 
 	private:
