@@ -31,25 +31,47 @@
 #include <vector>
 #include <unordered_map>
 
+//! @file WaveFileWriter.h
+//! @brief Class facilitating writing a typical wave file.
+
 class AudioData;
 
 namespace WaveFile {
 
+//! Class facilitating reading a typical wave file.
+
+//! See http://soundfile.sapp.org/doc/WaveFormat/ for details.
+
 class WaveFileWriter
 {
 	public:
+		//! @brief Instantiate the WaveFileWriter.
+		//! @param filename Name of the wave file to create.
+		//! @param channels The number of channels in the wave file.
+		//! @param sampleRate The sample rate of the wave file.
+		//! @param bitsPerSample The bit resolution of samples in the wave file.
 		WaveFileWriter(const std::string& filename, std::size_t channels, std::size_t sampleRate, std::size_t bitsPerSample);
 		~WaveFileWriter();
 
-		// An AudioData object holds a "stream" of audio.  Think of a "stream" as a single channel.  In order to write multiple 
-		// channels (i.e. a stereo file) place multiple AudioData objects in the vector.  For stereo, we follow the normal 
-		// convention of index zero being the left channel and index one being the right channel.
+		//! @brief Write audio to the end of the wave file.
+		//! An AudioData object holds a "stream" of audio.  Think of a "stream" as a single channel.  In order to write multiple 
+		//! channels (i.e. a stereo file) place multiple AudioData objects in the vector.  For stereo, we follow the normal 
+		//! convention of index zero being the left channel and index one being the right channel.
 		void AppendAudioData(const std::vector<AudioData>& audioData);
+
+		//! Get the current size (in samples) of the wave file.
 		std::size_t GetSampleCount();
 
+		//! Get the name of the wave file.
 		const std::string& GetFilename();
+
+		//! Get the number of channels in the wave file.
 		std::size_t GetChannels();
+
+		//! Get the sample rate of the wave file.
 		std::size_t GetSampleRate();
+
+		//! Get the bit resolution of the wave file.
 		std::size_t GetBitsPerSample();
 
 	private:

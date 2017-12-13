@@ -26,6 +26,9 @@
 
 #pragma once
 
+//! @file WaveFileDefines.h
+//! @brief Enumerations for identifying audio data streams.
+
 namespace WaveFile { 
 
 static const std::size_t MONO_CHANNEL = 0;
