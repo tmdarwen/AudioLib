@@ -1,7 +1,7 @@
 /*
  * AudioLib
  *
- * Copyright (c) 2017 - Terence M. Darwen - tmdarwen.com
+ * Copyright (c) 2017-2018 Terence M. Darwen - tmdarwen.com
  *
  * The MIT License
  *
@@ -38,6 +38,7 @@ namespace Signal {
 
 //! The transient detector, detects transients in audio.  An audio transient is usually a high amplitude, 
 //! short-duration sound at the beginning of a waveform.
+//! See https://github.com/tmdarwen/AudioLib/blob/master/Documentation/TransientDetection.md
 
 class TransientDetector
 {
