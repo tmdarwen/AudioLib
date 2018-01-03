@@ -1,7 +1,7 @@
 /*
  * AudioLib
  *
- * Copyright (c) 2017 - Terence M. Darwen - tmdarwen.com
+ * Copyright (c) 2017-2018 - Terence M. Darwen - tmdarwen.com
  *
  * The MIT License
  *
@@ -32,6 +32,7 @@
 #include <Utilities/Stringify.h>
 
 Signal::TransientDetector::TransientDetector(std::size_t sampleRate) :
+	sampleRate_{sampleRate},
 	firstLevelStepSize_{static_cast<std::size_t>(static_cast<double>(sampleRate) * (firstLevelStepMilliseconds_ / 1000.0) + 0.5)},
 	secondLevelStepSize_{static_cast<std::size_t>(static_cast<double>(sampleRate) * (secondLevelStepMilliseconds_ / 1000.0) + 0.5)},
 	thirdLevelStepSize_{static_cast<std::size_t>(static_cast<double>(sampleRate) * (thirdLevelStepMilliseconds_ / 1000.0) + 0.5)},
@@ -68,20 +69,56 @@ void Signal::TransientDetector::SetMinimumPeakLevel(double minPeakLevel)
 void Signal::TransientDetector::SetFirstLevelStep(double firstLevelStepMilliseconds)
 {
 	firstLevelStepMilliseconds_ = firstLevelStepMilliseconds;
+	firstLevelStepSize_ = static_cast<std::size_t>(static_cast<double>(sampleRate_) * (firstLevelStepMilliseconds_ / 1000.0) + 0.5);
 
 }
 
 void Signal::TransientDetector::SetSecondLevelStep(double secondLevelStepMilliseconds)
 {
 	secondLevelStepMilliseconds_ = secondLevelStepMilliseconds;
+	secondLevelStepSize_ = static_cast<std::size_t>(static_cast<double>(sampleRate_) * (secondLevelStepMilliseconds_ / 1000.0) + 0.5);
 
 }
 
 void Signal::TransientDetector::SetThirdLevelStep(double thirdLevelStepMilliseconds)
 {
 	thirdLevelStepMilliseconds_ = thirdLevelStepMilliseconds;
+	thirdLevelStepSize_ = static_cast<std::size_t>(static_cast<double>(sampleRate_) * (thirdLevelStepMilliseconds_ / 1000.0) + 0.5);
 }
 
+std::size_t Signal::TransientDetector::GetFirstLevelStepInSamples()
+{
+	return firstLevelStepSize_;
+}
+		
+std::size_t Signal::TransientDetector::GetSecondLevelStepInSamples()
+{
+	return secondLevelStepSize_;
+}
+		
+std::size_t Signal::TransientDetector::GetThirdLevelStepInSamples()
+{
+	return thirdLevelStepSize_;
+}
+
+void Signal::TransientDetector::SetFirstLevelStepInSamples(std::size_t samples)
+{
+	firstLevelStepSize_ = samples;
+	firstLevelStepMilliseconds_ = static_cast<double>(firstLevelStepSize_) / static_cast<double>(sampleRate_) * 1000.0;
+}
+
+void Signal::TransientDetector::SetSecondLevelStepInSamples(std::size_t samples)
+{
+	secondLevelStepSize_ = samples;
+	secondLevelStepMilliseconds_ = static_cast<double>(secondLevelStepSize_) / static_cast<double>(sampleRate_) * 1000.0;
+}
+
+void Signal::TransientDetector::SetThirdLevelStepInSamples(std::size_t samples)
+{
+	thirdLevelStepSize_ = samples;
+	thirdLevelStepMilliseconds_ = static_cast<double>(thirdLevelStepSize_) / static_cast<double>(sampleRate_) * 1000.0;
+}
+		
 double Signal::TransientDetector::GetFirstLevelStep()
 {
 	return firstLevelStepMilliseconds_;
@@ -279,34 +316,27 @@ std::size_t Signal::TransientDetector::GetLookAheadSampleCount()
 	return 3 * firstLevelStepSize_;
 }
 
-const Signal::TransientPeakAndValley& Signal::TransientDetector::GetPeakAndValleyInfo(std::size_t transient, Step step)
+std::vector<double> Signal::TransientDetector::GetFirstStepValues(const AudioData& audioInput)
 {
-	if(transient == 0 || transient > firstLevel_.size())
+	std::vector<double> firstStepValues;
+	for(std::size_t i{0}; i < audioInput.GetSize(); i += firstLevelStepSize_)
 	{
-		Utilities::ThrowException("Peak and valley info doesn't exist for transient", transient);
+		std::size_t samplesToRetrieve{std::min(firstLevelStepSize_, (audioInput.GetSize() - i))};
+		auto audio{audioInput.Retrieve(i, samplesToRetrieve)};
+		firstStepValues.push_back(GetMaxSample(audio, firstLevelStepSize_));
 	}
-
-	if(step == Signal::TransientDetector::Step::FIRST)
-	{
-		return firstLevel_[transient - 1];
-	}
-	else if(step == Signal::TransientDetector::Step::SECOND)
-	{
-		return secondLevel_[transient - 1];
-	}
-	else
-	{
-		return thirdLevel_[transient - 1];
-	}
+	return firstStepValues;
 }
 
 double Signal::TransientDetector::GetMaxSample(const AudioData& audioData, std::size_t sampleCount)
 {
+	std::size_t samplesToIterate{std::min(sampleCount, (audioData.GetSize()))};
+
 	const std::vector<double>& sampleBuffer{audioData.GetData()};
 
 	double maxSample{0.0};
 
-	for(std::size_t i{0}; i < sampleCount; ++i)
+	for(std::size_t i{0}; i < samplesToIterate; ++i)
 	{
 		double currentSample{sampleBuffer[i]};
 		if(currentSample < 0.0)

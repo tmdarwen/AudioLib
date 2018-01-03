@@ -74,17 +74,38 @@ class TransientDetector
 		//! Set third level step setting.  Default is 0.73 milliseconds.
 		void SetThirdLevelStep(double thirdLevelStepMilliseconds);
 
-		//! Get the current first level step setting.
+		//! Set first level step setting in samples.  Default is 512 samples for 44.1 KHz signal.
+		void SetFirstLevelStepInSamples(std::size_t samples);
+
+		//! Set second level step setting in samples.  Default is 256 samples for 44.1 KHz signal.
+		void SetSecondLevelStepInSamples(std::size_t samples);
+
+		//! Set third level step setting in samples.  Default is 32 samples for 44.1 KHz signal.
+		void SetThirdLevelStepInSamples(std::size_t samples);
+
+		//! Get the current first level step setting in milliseconds
 		double GetFirstLevelStep();
 
-		//! Get the current second level step setting.
+		//! Get the current second level step setting in milliseconds
 		double GetSecondLevelStep();
 
-		//! Get the current third level step setting.
+		//! Get the current third level step setting in milliseconds
 		double GetThirdLevelStep();
+
+		//! Get the current first level step size in sample units.
+		std::size_t GetFirstLevelStepInSamples();
+
+		//! Get the current second level step size in sample units.
+		std::size_t GetSecondLevelStepInSamples();
+
+		//! Get the current third level step size in sample units.
+		std::size_t GetThirdLevelStepInSamples();
 
 		//! Clears internal data to prepare to perform transient detection on new audio.
 		void Reset();
+
+		//! Gets the actual first step values for the given audio
+		std::vector<double> GetFirstStepValues(const AudioData& audioInput);
 
 		//! Get the number of "look ahead" samples required.
 		//
@@ -92,18 +113,8 @@ class TransientDetector
 		//! near the end of the given audio.  This returns to the user this "look ahead" amount.
 		std::size_t GetLookAheadSampleCount();	
 
-		//! The three separate steps when analyzing audio for transients.
-		enum Step
-		{
-			FIRST,
-			SECOND,
-			THIRD
-		};
-
-		//! Get detailed data on a specific transient.
-		const TransientPeakAndValley& GetPeakAndValleyInfo(std::size_t transient, Step step);
-
 	private:
+		std::size_t sampleRate_;
 		std::vector<TransientPeakAndValley> firstLevel_;
 		std::vector<TransientPeakAndValley> secondLevel_;
 		std::vector<TransientPeakAndValley> thirdLevel_;

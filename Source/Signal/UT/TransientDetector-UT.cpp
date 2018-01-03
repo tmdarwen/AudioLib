@@ -1,7 +1,7 @@
 /*
  * AudioLib
  *
- * Copyright (c) 2017 - Terence M. Darwen - tmdarwen.com
+ * Copyright (c) 2017-2018 - Terence M. Darwen - tmdarwen.com
  *
  * The MIT License
  *
@@ -72,15 +72,35 @@ TEST(TransientDetectorTests, TestGetSetLevelStepValues)
 	EXPECT_EQ(11.60998, transientDetector.GetFirstLevelStep());
 	EXPECT_EQ(5.80499, transientDetector.GetSecondLevelStep());
 	EXPECT_EQ(0.725623, transientDetector.GetThirdLevelStep());
+	EXPECT_EQ(512, transientDetector.GetFirstLevelStepInSamples());
+	EXPECT_EQ(256, transientDetector.GetSecondLevelStepInSamples());
+	EXPECT_EQ(32, transientDetector.GetThirdLevelStepInSamples());
 
-	// Then check setting your own
+	// Then check setting your own millisecond values
 	transientDetector.SetFirstLevelStep(5.6);
 	transientDetector.SetSecondLevelStep(3.4);
 	transientDetector.SetThirdLevelStep(1.2);
 
 	EXPECT_EQ(5.6, transientDetector.GetFirstLevelStep());
+	EXPECT_EQ(247, transientDetector.GetFirstLevelStepInSamples());
 	EXPECT_EQ(3.4, transientDetector.GetSecondLevelStep());
+	EXPECT_EQ(150, transientDetector.GetSecondLevelStepInSamples());
 	EXPECT_EQ(1.2, transientDetector.GetThirdLevelStep());
+	EXPECT_EQ(53, transientDetector.GetThirdLevelStepInSamples());
+
+	// Then check setting your own sample values
+	transientDetector.SetFirstLevelStepInSamples(1000);
+	transientDetector.SetSecondLevelStepInSamples(500);
+	transientDetector.SetThirdLevelStepInSamples(250);
+
+	EXPECT_NEAR(22.676, transientDetector.GetFirstLevelStep(), 0.001);
+	EXPECT_EQ(1000, transientDetector.GetFirstLevelStepInSamples());
+
+	EXPECT_NEAR(11.338, transientDetector.GetSecondLevelStep(), 0.001);
+	EXPECT_EQ(500, transientDetector.GetSecondLevelStepInSamples());
+
+	EXPECT_NEAR(5.669, transientDetector.GetThirdLevelStep(), 0.001);
+	EXPECT_EQ(250, transientDetector.GetThirdLevelStepInSamples());
 }
 
 TEST(TransientDetectorTests, TestSilence)
@@ -219,47 +239,31 @@ TEST(TransientDetectorTests, SweetEmotionSpecificRatio)
 	}
 }
 
-TEST(TransientDetectorTests, TestNonExistantPeakValleyInfo)
+TEST(TransientDetectorTests, TestNonExistantFirstStepValues)
 {
 	Signal::TransientDetector transientDetector(44100);
-	try
-	{
-		transientDetector.GetPeakAndValleyInfo(0, Signal::TransientDetector::Step::FIRST);
-	}
-	catch(std::exception& theException)
-	{
-		EXPECT_STREQ("Peak and valley info doesn't exist for transient|0", theException.what());
-	}
+	AudioData emptyAudioData;
+	auto results = transientDetector.GetFirstStepValues(emptyAudioData);
+	EXPECT_EQ(0, results.size());
 }
 
-TEST(TransientDetectorTests, TestGettingPeakAndValleyInfoAcousticGuitarDualStringPluck)
+TEST(TransientDetectorTests, TestObtainingFirstStepValues)
 {
 	WaveFile::WaveFileReader inputWaveFile{"AcousticGuitarDualStringPluck.wav"};
 	Signal::TransientDetector transientDetector(inputWaveFile.GetSampleRate());
+	auto results{transientDetector.GetFirstStepValues(inputWaveFile.GetAudioData()[0])};
 
-	std::vector<std::size_t> transients;
-	transientDetector.FindTransients(inputWaveFile.GetAudioData()[WaveFile::MONO_CHANNEL], transients);
-
-	EXPECT_EQ(2, transients.size());
-
+	std::size_t expectedValueCount{inputWaveFile.GetSampleCount() / transientDetector.GetFirstLevelStepInSamples()};
+	if(inputWaveFile.GetSampleCount() % transientDetector.GetFirstLevelStepInSamples())
 	{
-		auto peakAndValleyInfo{transientDetector.GetPeakAndValleyInfo(1, Signal::TransientDetector::Step::FIRST)};
-		EXPECT_EQ(85, peakAndValleyInfo.GetValleyPoint());
-		EXPECT_EQ(86, peakAndValleyInfo.GetPeakPoint());
-		EXPECT_EQ(88, peakAndValleyInfo.GetPlottedPoints().size());
+		++expectedValueCount;
 	}
 
-	{
-		auto peakAndValleyInfo{transientDetector.GetPeakAndValleyInfo(1, Signal::TransientDetector::Step::SECOND)};
-		EXPECT_EQ(1, peakAndValleyInfo.GetValleyPoint());
-		EXPECT_EQ(3, peakAndValleyInfo.GetPeakPoint());
-		EXPECT_EQ(5, peakAndValleyInfo.GetPlottedPoints().size());
-	}
+	// Make sure we got the expected number of results
+	EXPECT_EQ(expectedValueCount, results.size());
 
-	{
-		auto peakAndValleyInfo{transientDetector.GetPeakAndValleyInfo(1, Signal::TransientDetector::Step::THIRD)};
-		EXPECT_EQ(0, peakAndValleyInfo.GetValleyPoint());
-		EXPECT_EQ(0, peakAndValleyInfo.GetPeakPoint());
-		EXPECT_EQ(0, peakAndValleyInfo.GetPlottedPoints().size());
-	}
+	// Spot check a few values
+	EXPECT_NEAR(0.696921, results[0], 0.0001);
+	EXPECT_NEAR(0.144627, results[85], 0.0001);
+	EXPECT_NEAR(0.696921, results[86], 0.0001);
 }
