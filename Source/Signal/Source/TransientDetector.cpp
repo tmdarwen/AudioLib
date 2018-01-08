@@ -30,6 +30,7 @@
 #include <Signal/PeakFrequencyDetection.h>
 #include <Utilities/Exception.h>
 #include <Utilities/Stringify.h>
+#include <algorithm>
 
 Signal::TransientDetector::TransientDetector(std::size_t sampleRate) :
 	sampleRate_{sampleRate},
