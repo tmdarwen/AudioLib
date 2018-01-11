@@ -69,38 +69,38 @@ TEST(TransientDetectorTests, TestGetSetLevelStepValues)
 	Signal::TransientDetector transientDetector(44100);
 
 	// First check the default settings
-	EXPECT_EQ(11.60998, transientDetector.GetFirstLevelStep());
-	EXPECT_EQ(5.80499, transientDetector.GetSecondLevelStep());
-	EXPECT_EQ(0.725623, transientDetector.GetThirdLevelStep());
-	EXPECT_EQ(512, transientDetector.GetFirstLevelStepInSamples());
-	EXPECT_EQ(256, transientDetector.GetSecondLevelStepInSamples());
-	EXPECT_EQ(32, transientDetector.GetThirdLevelStepInSamples());
+	EXPECT_EQ(11.60998, transientDetector.GetStep(Signal::TransientDetector::Step::First));
+	EXPECT_EQ(5.80499, transientDetector.GetStep(Signal::TransientDetector::Step::Second));
+	EXPECT_EQ(0.725623, transientDetector.GetStep(Signal::TransientDetector::Step::Third));
+	EXPECT_EQ(512, transientDetector.GetStepInSamples(Signal::TransientDetector::Step::First));
+	EXPECT_EQ(256, transientDetector.GetStepInSamples(Signal::TransientDetector::Step::Second));
+	EXPECT_EQ(32, transientDetector.GetStepInSamples(Signal::TransientDetector::Step::Third));
 
 	// Then check setting your own millisecond values
-	transientDetector.SetFirstLevelStep(5.6);
-	transientDetector.SetSecondLevelStep(3.4);
-	transientDetector.SetThirdLevelStep(1.2);
+	transientDetector.SetStep(5.6, Signal::TransientDetector::Step::First);
+	transientDetector.SetStep(3.4, Signal::TransientDetector::Step::Second);
+	transientDetector.SetStep(1.2, Signal::TransientDetector::Step::Third);
 
-	EXPECT_EQ(5.6, transientDetector.GetFirstLevelStep());
-	EXPECT_EQ(247, transientDetector.GetFirstLevelStepInSamples());
-	EXPECT_EQ(3.4, transientDetector.GetSecondLevelStep());
-	EXPECT_EQ(150, transientDetector.GetSecondLevelStepInSamples());
-	EXPECT_EQ(1.2, transientDetector.GetThirdLevelStep());
-	EXPECT_EQ(53, transientDetector.GetThirdLevelStepInSamples());
+	EXPECT_EQ(5.6, transientDetector.GetStep(Signal::TransientDetector::Step::First));
+	EXPECT_EQ(247, transientDetector.GetStepInSamples(Signal::TransientDetector::Step::First));
+	EXPECT_EQ(3.4, transientDetector.GetStep(Signal::TransientDetector::Step::Second));
+	EXPECT_EQ(150, transientDetector.GetStepInSamples(Signal::TransientDetector::Step::Second));
+	EXPECT_EQ(1.2, transientDetector.GetStep(Signal::TransientDetector::Step::Third));
+	EXPECT_EQ(53, transientDetector.GetStepInSamples(Signal::TransientDetector::Step::Third));
 
 	// Then check setting your own sample values
-	transientDetector.SetFirstLevelStepInSamples(1000);
-	transientDetector.SetSecondLevelStepInSamples(500);
-	transientDetector.SetThirdLevelStepInSamples(250);
+	transientDetector.SetStepInSamples(1000, Signal::TransientDetector::Step::First);
+	transientDetector.SetStepInSamples(500, Signal::TransientDetector::Step::Second);
+	transientDetector.SetStepInSamples(250, Signal::TransientDetector::Step::Third);
 
-	EXPECT_NEAR(22.676, transientDetector.GetFirstLevelStep(), 0.001);
-	EXPECT_EQ(1000, transientDetector.GetFirstLevelStepInSamples());
+	EXPECT_NEAR(22.676, transientDetector.GetStep(Signal::TransientDetector::Step::First), 0.001);
+	EXPECT_EQ(1000, transientDetector.GetStepInSamples(Signal::TransientDetector::Step::First));
 
-	EXPECT_NEAR(11.338, transientDetector.GetSecondLevelStep(), 0.001);
-	EXPECT_EQ(500, transientDetector.GetSecondLevelStepInSamples());
+	EXPECT_NEAR(11.338, transientDetector.GetStep(Signal::TransientDetector::Step::Second), 0.001);
+	EXPECT_EQ(500, transientDetector.GetStepInSamples(Signal::TransientDetector::Step::Second));
 
-	EXPECT_NEAR(5.669, transientDetector.GetThirdLevelStep(), 0.001);
-	EXPECT_EQ(250, transientDetector.GetThirdLevelStepInSamples());
+	EXPECT_NEAR(5.669, transientDetector.GetStep(Signal::TransientDetector::Step::Third), 0.001);
+	EXPECT_EQ(250, transientDetector.GetStepInSamples(Signal::TransientDetector::Step::Third));
 }
 
 TEST(TransientDetectorTests, TestSilence)
@@ -253,8 +253,8 @@ TEST(TransientDetectorTests, TestObtainingFirstStepValues)
 	Signal::TransientDetector transientDetector(inputWaveFile.GetSampleRate());
 	auto results{transientDetector.GetFirstStepValues(inputWaveFile.GetAudioData()[0])};
 
-	std::size_t expectedValueCount{inputWaveFile.GetSampleCount() / transientDetector.GetFirstLevelStepInSamples()};
-	if(inputWaveFile.GetSampleCount() % transientDetector.GetFirstLevelStepInSamples())
+	std::size_t expectedValueCount{inputWaveFile.GetSampleCount() / transientDetector.GetStepInSamples(Signal::TransientDetector::Step::First)};
+	if(inputWaveFile.GetSampleCount() % transientDetector.GetStepInSamples(Signal::TransientDetector::Step::First))
 	{
 		++expectedValueCount;
 	}
@@ -294,5 +294,5 @@ TEST(TransientDetectorTests, TestObtainingFirstLevelPeakSamplePositions)
 	EXPECT_EQ(44032, results[0]);
 
 	// Sanity check: Make sure the first level peak position is multiple of the given step size.
-	EXPECT_EQ(0, results[0] % transientDetector.GetFirstLevelStepInSamples());
+	EXPECT_EQ(0, results[0] % transientDetector.GetStepInSamples(Signal::TransientDetector::Step::First));
 }

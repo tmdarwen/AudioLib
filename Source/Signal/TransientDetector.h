@@ -65,41 +65,24 @@ class TransientDetector
 		//! Get the minimum audio level of a peak sample to actually qualify as a peak.
 		double GetMinimumPeakLevel();
 
-		//! Set first level step setting.  Default is 11.6 milliseconds.
-		void SetFirstLevelStep(double firstLevelStepMilliseconds);
+		enum class Step
+		{
+			First,
+			Second,
+			Third
+		};
 
-		//! Set second level step setting.  Default is 5.8 milliseconds.
-		void SetSecondLevelStep(double secondLevelStepMilliseconds);
+		//! Set step size in units of milliseconds.
+		void SetStep(double stepInMilliseconds, Signal::TransientDetector::Step step);
 
-		//! Set third level step setting.  Default is 0.73 milliseconds.
-		void SetThirdLevelStep(double thirdLevelStepMilliseconds);
+		//! Set step size in units of samples.
+		void SetStepInSamples(std::size_t samples, Signal::TransientDetector::Step step);
 
-		//! Set first level step setting in samples.  Default is 512 samples for 44.1 KHz signal.
-		void SetFirstLevelStepInSamples(std::size_t samples);
+		//! Get step size in units of milliseconds.
+		double GetStep(Signal::TransientDetector::Step step);
 
-		//! Set second level step setting in samples.  Default is 256 samples for 44.1 KHz signal.
-		void SetSecondLevelStepInSamples(std::size_t samples);
-
-		//! Set third level step setting in samples.  Default is 32 samples for 44.1 KHz signal.
-		void SetThirdLevelStepInSamples(std::size_t samples);
-
-		//! Get the current first level step setting in milliseconds
-		double GetFirstLevelStep();
-
-		//! Get the current second level step setting in milliseconds
-		double GetSecondLevelStep();
-
-		//! Get the current third level step setting in milliseconds
-		double GetThirdLevelStep();
-
-		//! Get the current first level step size in sample units.
-		std::size_t GetFirstLevelStepInSamples();
-
-		//! Get the current second level step size in sample units.
-		std::size_t GetSecondLevelStepInSamples();
-
-		//! Get the current third level step size in sample units.
-		std::size_t GetThirdLevelStepInSamples();
+		//! Get the current step size in units of samples.
+		std::size_t GetStepInSamples(Signal::TransientDetector::Step step);
 
 		//! Clears internal data to prepare to perform transient detection on new audio.
 		void Reset();

@@ -67,41 +67,76 @@ void Signal::TransientDetector::SetMinimumPeakLevel(double minPeakLevel)
 	minPeakLevel_ = minPeakLevel;
 }
 
-void Signal::TransientDetector::SetFirstLevelStep(double firstLevelStepMilliseconds)
+void Signal::TransientDetector::SetStep(double stepInMilliseconds, Signal::TransientDetector::Step step)
 {
-	firstLevelStepMilliseconds_ = firstLevelStepMilliseconds;
-	firstLevelStepSize_ = static_cast<std::size_t>(static_cast<double>(sampleRate_) * (firstLevelStepMilliseconds_ / 1000.0) + 0.5);
-
+	switch(step)
+	{
+		case Step::First:
+			firstLevelStepMilliseconds_ = stepInMilliseconds;
+			firstLevelStepSize_ = static_cast<std::size_t>(static_cast<double>(sampleRate_) * (stepInMilliseconds / 1000.0) + 0.5);
+			break;
+		case Step::Second:
+			secondLevelStepMilliseconds_ = stepInMilliseconds;
+			secondLevelStepSize_ = static_cast<std::size_t>(static_cast<double>(sampleRate_) * (stepInMilliseconds / 1000.0) + 0.5);
+			break;
+		case Step::Third:
+			thirdLevelStepMilliseconds_ = stepInMilliseconds;
+			thirdLevelStepSize_ = static_cast<std::size_t>(static_cast<double>(sampleRate_) * (stepInMilliseconds / 1000.0) + 0.5);
+			break;
+	}
 }
 
-void Signal::TransientDetector::SetSecondLevelStep(double secondLevelStepMilliseconds)
+void Signal::TransientDetector::SetStepInSamples(std::size_t samples, Signal::TransientDetector::Step step)
 {
-	secondLevelStepMilliseconds_ = secondLevelStepMilliseconds;
-	secondLevelStepSize_ = static_cast<std::size_t>(static_cast<double>(sampleRate_) * (secondLevelStepMilliseconds_ / 1000.0) + 0.5);
-
+	switch(step)
+	{
+		case Step::First:
+			firstLevelStepSize_ = samples;
+			firstLevelStepMilliseconds_ = static_cast<double>(firstLevelStepSize_) / static_cast<double>(sampleRate_) * 1000.0;
+			break;
+		case Step::Second:
+			secondLevelStepSize_ = samples;
+			secondLevelStepMilliseconds_ = static_cast<double>(secondLevelStepSize_) / static_cast<double>(sampleRate_) * 1000.0;
+			break;
+		case Step::Third:
+			thirdLevelStepSize_ = samples;
+			thirdLevelStepMilliseconds_ = static_cast<double>(thirdLevelStepSize_) / static_cast<double>(sampleRate_) * 1000.0;
+			break;
+	}
 }
 
-void Signal::TransientDetector::SetThirdLevelStep(double thirdLevelStepMilliseconds)
+
+double Signal::TransientDetector::GetStep(Signal::TransientDetector::Step step)
 {
-	thirdLevelStepMilliseconds_ = thirdLevelStepMilliseconds;
-	thirdLevelStepSize_ = static_cast<std::size_t>(static_cast<double>(sampleRate_) * (thirdLevelStepMilliseconds_ / 1000.0) + 0.5);
+	switch(step)
+	{
+		case Step::First:
+			return firstLevelStepMilliseconds_;
+		case Step::Second:
+			return secondLevelStepMilliseconds_;
+		case Step::Third:
+			return thirdLevelStepMilliseconds_;
+	}
+
+	return 0; // Just to avoid warning
 }
 
-std::size_t Signal::TransientDetector::GetFirstLevelStepInSamples()
+std::size_t Signal::TransientDetector::GetStepInSamples(Signal::TransientDetector::Step step)
 {
-	return firstLevelStepSize_;
-}
-		
-std::size_t Signal::TransientDetector::GetSecondLevelStepInSamples()
-{
-	return secondLevelStepSize_;
-}
-		
-std::size_t Signal::TransientDetector::GetThirdLevelStepInSamples()
-{
-	return thirdLevelStepSize_;
+	switch(step)
+	{
+		case Step::First:
+			return firstLevelStepSize_;
+		case Step::Second:
+			return secondLevelStepSize_;
+		case Step::Third:
+			return thirdLevelStepSize_;
+	}
+
+	return 0; // Just to avoid warning
 }
 
+/*
 void Signal::TransientDetector::SetFirstLevelStepInSamples(std::size_t samples)
 {
 	firstLevelStepSize_ = samples;
@@ -134,6 +169,7 @@ double Signal::TransientDetector::GetThirdLevelStep()
 {
 	return thirdLevelStepMilliseconds_;
 }
+*/
 
 void Signal::TransientDetector::Reset()
 {
