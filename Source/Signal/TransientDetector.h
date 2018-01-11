@@ -65,26 +65,36 @@ class TransientDetector
 		//! Get the minimum audio level of a peak sample to actually qualify as a peak.
 		double GetMinimumPeakLevel();
 
-		//! Set first level step setting.  Default is 11.6 milliseconds.
-		void SetFirstLevelStep(double firstLevelStepMilliseconds);
+		enum class Step
+		{
+			First,
+			Second,
+			Third
+		};
 
-		//! Set second level step setting.  Default is 5.8 milliseconds.
-		void SetSecondLevelStep(double secondLevelStepMilliseconds);
+		//! Set step size in units of milliseconds.
+		void SetStep(double stepInMilliseconds, Signal::TransientDetector::Step step);
 
-		//! Set third level step setting.  Default is 0.73 milliseconds.
-		void SetThirdLevelStep(double thirdLevelStepMilliseconds);
+		//! Set step size in units of samples.
+		void SetStepInSamples(std::size_t samples, Signal::TransientDetector::Step step);
 
-		//! Get the current first level step setting.
-		double GetFirstLevelStep();
+		//! Get step size in units of milliseconds.
+		double GetStep(Signal::TransientDetector::Step step);
 
-		//! Get the current second level step setting.
-		double GetSecondLevelStep();
-
-		//! Get the current third level step setting.
-		double GetThirdLevelStep();
+		//! Get the current step size in units of samples.
+		std::size_t GetStepInSamples(Signal::TransientDetector::Step step);
 
 		//! Clears internal data to prepare to perform transient detection on new audio.
 		void Reset();
+
+		//! Gets the actual first step values for the given audio
+		std::vector<double> GetFirstStepValues(const AudioData& audioInput);
+
+		//! Gets the actual first step values for the given audio found during analysis.
+		//
+		//! Remember that the first transient is a special case where the peak method is not used.  Therefore 
+		//! this transient is not included in the list returned.
+		std::vector<std::size_t> GetFirstLevelPeakSamplePositions();
 
 		//! Get the number of "look ahead" samples required.
 		//
@@ -92,21 +102,13 @@ class TransientDetector
 		//! near the end of the given audio.  This returns to the user this "look ahead" amount.
 		std::size_t GetLookAheadSampleCount();	
 
-		//! The three separate steps when analyzing audio for transients.
-		enum Step
-		{
-			FIRST,
-			SECOND,
-			THIRD
-		};
-
-		//! Get detailed data on a specific transient.
-		const TransientPeakAndValley& GetPeakAndValleyInfo(std::size_t transient, Step step);
-
 	private:
+		std::size_t sampleRate_;
 		std::vector<TransientPeakAndValley> firstLevel_;
 		std::vector<TransientPeakAndValley> secondLevel_;
 		std::vector<TransientPeakAndValley> thirdLevel_;
+
+		std::vector<std::size_t> firstLevelPeakSamplePositions_;
 
 		double firstLevelStepMilliseconds_{11.60998};  // 512 samples for 44.1KHz sample rate
 		double secondLevelStepMilliseconds_{5.80499};  // 256 samples for 44.1KHz sample rate

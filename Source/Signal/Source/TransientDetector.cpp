@@ -1,7 +1,7 @@
 /*
  * AudioLib
  *
- * Copyright (c) 2017 - Terence M. Darwen - tmdarwen.com
+ * Copyright (c) 2017-2018 - Terence M. Darwen - tmdarwen.com
  *
  * The MIT License
  *
@@ -30,8 +30,10 @@
 #include <Signal/PeakFrequencyDetection.h>
 #include <Utilities/Exception.h>
 #include <Utilities/Stringify.h>
+#include <algorithm>
 
 Signal::TransientDetector::TransientDetector(std::size_t sampleRate) :
+	sampleRate_{sampleRate},
 	firstLevelStepSize_{static_cast<std::size_t>(static_cast<double>(sampleRate) * (firstLevelStepMilliseconds_ / 1000.0) + 0.5)},
 	secondLevelStepSize_{static_cast<std::size_t>(static_cast<double>(sampleRate) * (secondLevelStepMilliseconds_ / 1000.0) + 0.5)},
 	thirdLevelStepSize_{static_cast<std::size_t>(static_cast<double>(sampleRate) * (thirdLevelStepMilliseconds_ / 1000.0) + 0.5)},
@@ -65,23 +67,94 @@ void Signal::TransientDetector::SetMinimumPeakLevel(double minPeakLevel)
 	minPeakLevel_ = minPeakLevel;
 }
 
-void Signal::TransientDetector::SetFirstLevelStep(double firstLevelStepMilliseconds)
+void Signal::TransientDetector::SetStep(double stepInMilliseconds, Signal::TransientDetector::Step step)
 {
-	firstLevelStepMilliseconds_ = firstLevelStepMilliseconds;
-
+	switch(step)
+	{
+		case Step::First:
+			firstLevelStepMilliseconds_ = stepInMilliseconds;
+			firstLevelStepSize_ = static_cast<std::size_t>(static_cast<double>(sampleRate_) * (stepInMilliseconds / 1000.0) + 0.5);
+			break;
+		case Step::Second:
+			secondLevelStepMilliseconds_ = stepInMilliseconds;
+			secondLevelStepSize_ = static_cast<std::size_t>(static_cast<double>(sampleRate_) * (stepInMilliseconds / 1000.0) + 0.5);
+			break;
+		case Step::Third:
+			thirdLevelStepMilliseconds_ = stepInMilliseconds;
+			thirdLevelStepSize_ = static_cast<std::size_t>(static_cast<double>(sampleRate_) * (stepInMilliseconds / 1000.0) + 0.5);
+			break;
+	}
 }
 
-void Signal::TransientDetector::SetSecondLevelStep(double secondLevelStepMilliseconds)
+void Signal::TransientDetector::SetStepInSamples(std::size_t samples, Signal::TransientDetector::Step step)
 {
-	secondLevelStepMilliseconds_ = secondLevelStepMilliseconds;
-
+	switch(step)
+	{
+		case Step::First:
+			firstLevelStepSize_ = samples;
+			firstLevelStepMilliseconds_ = static_cast<double>(firstLevelStepSize_) / static_cast<double>(sampleRate_) * 1000.0;
+			break;
+		case Step::Second:
+			secondLevelStepSize_ = samples;
+			secondLevelStepMilliseconds_ = static_cast<double>(secondLevelStepSize_) / static_cast<double>(sampleRate_) * 1000.0;
+			break;
+		case Step::Third:
+			thirdLevelStepSize_ = samples;
+			thirdLevelStepMilliseconds_ = static_cast<double>(thirdLevelStepSize_) / static_cast<double>(sampleRate_) * 1000.0;
+			break;
+	}
 }
 
-void Signal::TransientDetector::SetThirdLevelStep(double thirdLevelStepMilliseconds)
+
+double Signal::TransientDetector::GetStep(Signal::TransientDetector::Step step)
 {
-	thirdLevelStepMilliseconds_ = thirdLevelStepMilliseconds;
+	switch(step)
+	{
+		case Step::First:
+			return firstLevelStepMilliseconds_;
+		case Step::Second:
+			return secondLevelStepMilliseconds_;
+		case Step::Third:
+			return thirdLevelStepMilliseconds_;
+	}
+
+	return 0; // Just to avoid warning
 }
 
+std::size_t Signal::TransientDetector::GetStepInSamples(Signal::TransientDetector::Step step)
+{
+	switch(step)
+	{
+		case Step::First:
+			return firstLevelStepSize_;
+		case Step::Second:
+			return secondLevelStepSize_;
+		case Step::Third:
+			return thirdLevelStepSize_;
+	}
+
+	return 0; // Just to avoid warning
+}
+
+/*
+void Signal::TransientDetector::SetFirstLevelStepInSamples(std::size_t samples)
+{
+	firstLevelStepSize_ = samples;
+	firstLevelStepMilliseconds_ = static_cast<double>(firstLevelStepSize_) / static_cast<double>(sampleRate_) * 1000.0;
+}
+
+void Signal::TransientDetector::SetSecondLevelStepInSamples(std::size_t samples)
+{
+	secondLevelStepSize_ = samples;
+	secondLevelStepMilliseconds_ = static_cast<double>(secondLevelStepSize_) / static_cast<double>(sampleRate_) * 1000.0;
+}
+
+void Signal::TransientDetector::SetThirdLevelStepInSamples(std::size_t samples)
+{
+	thirdLevelStepSize_ = samples;
+	thirdLevelStepMilliseconds_ = static_cast<double>(thirdLevelStepSize_) / static_cast<double>(sampleRate_) * 1000.0;
+}
+		
 double Signal::TransientDetector::GetFirstLevelStep()
 {
 	return firstLevelStepMilliseconds_;
@@ -96,6 +169,7 @@ double Signal::TransientDetector::GetThirdLevelStep()
 {
 	return thirdLevelStepMilliseconds_;
 }
+*/
 
 void Signal::TransientDetector::Reset()
 {
@@ -103,6 +177,7 @@ void Signal::TransientDetector::Reset()
 	transientsFound_ = false;
 	lastTransientValue_ = 0;
 	inputSamplesProcessed_ = 0;
+	firstLevelPeakSamplePositions_.clear();
 }
 
 bool Signal::TransientDetector::FindTransients(const AudioData& audioInput, std::vector<std::size_t>& transients)
@@ -196,6 +271,7 @@ bool Signal::TransientDetector::FindTransients(std::vector<std::size_t>& transie
 		auto transientSamplePosition{inputSamplesProcessed_ + FindTransientSamplePosition(firstLevelPeakAndValley)};
 		if(transientsFound_ == false || (3 * firstLevelStepSize_ + lastTransientValue_) <= transientSamplePosition)
 		{
+			firstLevelPeakSamplePositions_.push_back(inputSamplesProcessed_ + firstLevelPeakAndValley.GetPeakSamplePosition());
 			firstLevel_.push_back(firstLevelPeakAndValley);
 			transients.push_back(transientSamplePosition);
 			lastTransientValue_ = transientSamplePosition;
@@ -279,34 +355,32 @@ std::size_t Signal::TransientDetector::GetLookAheadSampleCount()
 	return 3 * firstLevelStepSize_;
 }
 
-const Signal::TransientPeakAndValley& Signal::TransientDetector::GetPeakAndValleyInfo(std::size_t transient, Step step)
+std::vector<std::size_t> Signal::TransientDetector::GetFirstLevelPeakSamplePositions()
 {
-	if(transient == 0 || transient > firstLevel_.size())
-	{
-		Utilities::ThrowException("Peak and valley info doesn't exist for transient", transient);
-	}
+	return firstLevelPeakSamplePositions_;
+}
 
-	if(step == Signal::TransientDetector::Step::FIRST)
+std::vector<double> Signal::TransientDetector::GetFirstStepValues(const AudioData& audioInput)
+{
+	std::vector<double> firstStepValues;
+	for(std::size_t i{0}; i < audioInput.GetSize(); i += firstLevelStepSize_)
 	{
-		return firstLevel_[transient - 1];
+		std::size_t samplesToRetrieve{std::min(firstLevelStepSize_, (audioInput.GetSize() - i))};
+		auto audio{audioInput.Retrieve(i, samplesToRetrieve)};
+		firstStepValues.push_back(GetMaxSample(audio, firstLevelStepSize_));
 	}
-	else if(step == Signal::TransientDetector::Step::SECOND)
-	{
-		return secondLevel_[transient - 1];
-	}
-	else
-	{
-		return thirdLevel_[transient - 1];
-	}
+	return firstStepValues;
 }
 
 double Signal::TransientDetector::GetMaxSample(const AudioData& audioData, std::size_t sampleCount)
 {
+	std::size_t samplesToIterate{std::min(sampleCount, (audioData.GetSize()))};
+
 	const std::vector<double>& sampleBuffer{audioData.GetData()};
 
 	double maxSample{0.0};
 
-	for(std::size_t i{0}; i < sampleCount; ++i)
+	for(std::size_t i{0}; i < samplesToIterate; ++i)
 	{
 		double currentSample{sampleBuffer[i]};
 		if(currentSample < 0.0)

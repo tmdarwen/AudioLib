@@ -121,8 +121,8 @@ AudioData AudioData::Retrieve(uint64_t startPosition, uint64_t samples) const
 
 	AudioData audioData;
 
-	std::size_t index{startPosition};
-	std::size_t stopSample{startPosition + samples};
+	std::size_t index{static_cast<std::size_t>(startPosition)};
+	std::size_t stopSample{static_cast<std::size_t>(startPosition + samples)};
 	while(index < stopSample)
 	{
 		audioData.data_.push_back(data_[index]);	
