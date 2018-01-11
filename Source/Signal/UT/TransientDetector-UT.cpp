@@ -267,3 +267,32 @@ TEST(TransientDetectorTests, TestObtainingFirstStepValues)
 	EXPECT_NEAR(0.144627, results[85], 0.0001);
 	EXPECT_NEAR(0.696921, results[86], 0.0001);
 }
+
+TEST(TransientDetectorTests, TestNonExistantFirstLevelPeakSamplePositions)
+{
+	Signal::TransientDetector transientDetector(44100);
+	AudioData emptyAudioData;
+	auto results = transientDetector.GetFirstLevelPeakSamplePositions();
+	EXPECT_EQ(0, results.size());
+}
+
+TEST(TransientDetectorTests, TestObtainingFirstLevelPeakSamplePositions)
+{
+	WaveFile::WaveFileReader inputWaveFile{"AcousticGuitarDualStringPluck.wav"};
+	Signal::TransientDetector transientDetector(inputWaveFile.GetSampleRate());
+
+	std::vector<std::size_t> transients;
+	transientDetector.FindTransients(inputWaveFile.GetAudioData()[WaveFile::MONO_CHANNEL], transients);
+
+	auto results{transientDetector.GetFirstLevelPeakSamplePositions()};
+
+	// Remember that the first transient is a special case where the peak method is not used.  Therefore 
+	// this transient is not included in the list returned.
+	EXPECT_EQ(1, results.size());
+
+	// Verify the first level peak sample position
+	EXPECT_EQ(44032, results[0]);
+
+	// Sanity check: Make sure the first level peak position is multiple of the given step size.
+	EXPECT_EQ(0, results[0] % transientDetector.GetFirstLevelStepInSamples());
+}

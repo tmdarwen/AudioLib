@@ -141,6 +141,7 @@ void Signal::TransientDetector::Reset()
 	transientsFound_ = false;
 	lastTransientValue_ = 0;
 	inputSamplesProcessed_ = 0;
+	firstLevelPeakSamplePositions_.clear();
 }
 
 bool Signal::TransientDetector::FindTransients(const AudioData& audioInput, std::vector<std::size_t>& transients)
@@ -234,6 +235,7 @@ bool Signal::TransientDetector::FindTransients(std::vector<std::size_t>& transie
 		auto transientSamplePosition{inputSamplesProcessed_ + FindTransientSamplePosition(firstLevelPeakAndValley)};
 		if(transientsFound_ == false || (3 * firstLevelStepSize_ + lastTransientValue_) <= transientSamplePosition)
 		{
+			firstLevelPeakSamplePositions_.push_back(inputSamplesProcessed_ + firstLevelPeakAndValley.GetPeakSamplePosition());
 			firstLevel_.push_back(firstLevelPeakAndValley);
 			transients.push_back(transientSamplePosition);
 			lastTransientValue_ = transientSamplePosition;
@@ -315,6 +317,11 @@ bool Signal::TransientDetector::SampleMeetsPeekRequirements(double peakSampleVal
 std::size_t Signal::TransientDetector::GetLookAheadSampleCount()
 {
 	return 3 * firstLevelStepSize_;
+}
+
+std::vector<std::size_t> Signal::TransientDetector::GetFirstLevelPeakSamplePositions()
+{
+	return firstLevelPeakSamplePositions_;
 }
 
 std::vector<double> Signal::TransientDetector::GetFirstStepValues(const AudioData& audioInput)

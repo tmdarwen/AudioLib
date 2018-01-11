@@ -107,6 +107,12 @@ class TransientDetector
 		//! Gets the actual first step values for the given audio
 		std::vector<double> GetFirstStepValues(const AudioData& audioInput);
 
+		//! Gets the actual first step values for the given audio found during analysis.
+		//
+		//! Remember that the first transient is a special case where the peak method is not used.  Therefore 
+		//! this transient is not included in the list returned.
+		std::vector<std::size_t> GetFirstLevelPeakSamplePositions();
+
 		//! Get the number of "look ahead" samples required.
 		//
 		//! The Transient Detector needs to "look ahead" just beyond the given amount of data in order to get a transient 
@@ -118,6 +124,8 @@ class TransientDetector
 		std::vector<TransientPeakAndValley> firstLevel_;
 		std::vector<TransientPeakAndValley> secondLevel_;
 		std::vector<TransientPeakAndValley> thirdLevel_;
+
+		std::vector<std::size_t> firstLevelPeakSamplePositions_;
 
 		double firstLevelStepMilliseconds_{11.60998};  // 512 samples for 44.1KHz sample rate
 		double secondLevelStepMilliseconds_{5.80499};  // 256 samples for 44.1KHz sample rate
